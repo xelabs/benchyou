@@ -25,4 +25,5 @@ type Conf struct {
 	Mysql_range_order  string
 	Max_time           int
 	Oltp_tables_count  int
+	Bench_mode         string
 }

@@ -7,7 +7,7 @@
  *
  */
 
-package sysbench
+package xworker
 
 import (
 	"fmt"

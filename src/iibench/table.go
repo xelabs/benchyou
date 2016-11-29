@@ -7,7 +7,7 @@
  *
  */
 
-package sysbench
+package iibench
 
 import (
 	"fmt"
@@ -28,20 +28,23 @@ func (t *Table) Prepare() {
 	count := t.workers[0].N
 	engine := t.workers[0].E
 	for i := 0; i < count; i++ {
-		sql := fmt.Sprintf(`CREATE TABLE benchyou%d (
-							id bigint(20) unsigned NOT NULL,
-							k bigint(20) unsigned NOT NULL DEFAULT '0',
-							c char(120) NOT NULL DEFAULT '',
-							pad char(60) NOT NULL DEFAULT '',
-							PRIMARY KEY (id),
-							KEY k_1 (k)
-							) ENGINE=%s`, i, engine)
+		sql := fmt.Sprintf(`create table purchases_index%d (
+							transactionid bigint(20) not null auto_increment,
+							dateandtime datetime,
+							cashregisterid int not null,
+							customerid int not null,
+							productid int not null,
+							price float not null,
+							data varchar(4000),
+							primary key (transactionid),
+							index pdc (price, dateandtime, customerid)
+							) engine=%s`, i, engine)
 
 		_, err := session.Exec(sql)
 		if err != nil {
 			log.Panicf("creata.table.error[%v]", err)
 		}
-		log.Printf("create table benchyou%d(engine=%v) finished...\n", i, engine)
+		log.Printf("create table purchases_index%d(engine=%v) finished...\n", i, engine)
 	}
 }
 
@@ -49,12 +52,12 @@ func (t *Table) Cleanup() {
 	session := t.workers[0].S
 	count := t.workers[0].N
 	for i := 0; i < count; i++ {
-		sql := fmt.Sprintf(`DROP TABLE benchyou%d;`, i)
+		sql := fmt.Sprintf(`DROP TABLE purchases_index%d;`, i)
 
 		_, err := session.Exec(sql)
 		if err != nil {
 			log.Panicf("drop.table.error[%v]", err)
 		}
-		log.Printf("drop table benchyou%d finished...\n", i)
+		log.Printf("drop table purchases_index%d finished...\n", i)
 	}
 }

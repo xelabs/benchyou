@@ -80,5 +80,9 @@ func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 		return
 	}
 
+	if conf.Bench_mode, err = cmd.Flags().GetString("bench-mode"); err != nil {
+		return
+	}
+
 	return
 }

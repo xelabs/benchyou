@@ -12,11 +12,11 @@ package xcmd
 import (
 	"fmt"
 	"os"
-	"sysbench"
 	"text/tabwriter"
 	"time"
 	"xcommon"
 	"xstat"
+	"xworker"
 )
 
 type Stats struct {
@@ -34,7 +34,7 @@ type Stats struct {
 
 type Monitor struct {
 	conf    *xcommon.Conf
-	workers []sysbench.Worker
+	workers []xworker.Worker
 	ticker  *time.Ticker
 	vms     *xstat.VMS
 	ios     *xstat.IOS
@@ -43,7 +43,7 @@ type Monitor struct {
 	seconds uint64
 }
 
-func NewMonitor(conf *xcommon.Conf, workers []sysbench.Worker) *Monitor {
+func NewMonitor(conf *xcommon.Conf, workers []xworker.Worker) *Monitor {
 	return &Monitor{
 		conf:    conf,
 		workers: workers,
@@ -60,8 +60,8 @@ func (m *Monitor) Start() {
 	m.vms.Start()
 	m.ios.Start()
 	go func() {
-		newm := &sysbench.Metric{}
-		oldm := &sysbench.Metric{}
+		newm := &xworker.Metric{}
+		oldm := &xworker.Metric{}
 		for _ = range m.ticker.C {
 			m.seconds++
 			m.stats.SystemCS = m.vms.Stat.SystemCS
@@ -86,7 +86,7 @@ func (m *Monitor) Start() {
 			m.all.AWAIT += m.stats.AWAIT
 			m.all.UTIL += m.stats.UTIL
 
-			newm = sysbench.AllWorkersMetric(m.workers)
+			newm = xworker.AllWorkersMetric(m.workers)
 			wtps := float64(newm.WNums - oldm.WNums)
 			rtps := float64(newm.QNums - oldm.QNums)
 			tps := wtps + rtps
@@ -119,12 +119,12 @@ func (m *Monitor) Start() {
 
 func (m *Monitor) Stop() {
 	m.ticker.Stop()
-	sysbench.StopWorkers(m.workers)
+	xworker.StopWorkers(m.workers)
 
 	// avg results at the end
 	w := tabwriter.NewWriter(os.Stdout, 4, 4, 2, ' ', 0)
 	counts := float64(m.seconds)
-	all := sysbench.AllWorkersMetric(m.workers)
+	all := xworker.AllWorkersMetric(m.workers)
 	wtps := float64(all.WNums)
 	rtps := float64(all.QNums)
 	tps := wtps + rtps

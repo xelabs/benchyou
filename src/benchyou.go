@@ -33,6 +33,7 @@ var (
 	ssh_user           string
 	ssh_password       string
 	ssh_port           int
+	bench_mode         string
 )
 
 var (
@@ -59,6 +60,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&ssh_user, "ssh-user", "benchyou", "SSH server user(Default benchyou)")
 	rootCmd.PersistentFlags().StringVar(&ssh_password, "ssh-password", "benchyou", "SSH server password(Default benchyou)")
 	rootCmd.PersistentFlags().IntVar(&ssh_port, "ssh-port", 22, "SSH server port(Default 22)")
+	rootCmd.PersistentFlags().StringVar(&bench_mode, "bench-mode", "sysbench", "benchmark mode, {sysbench|iibench}(Default sysbench)")
 
 	rootCmd.AddCommand(xcmd.NewPrepareCommand())
 	rootCmd.AddCommand(xcmd.NewCleanupCommand())

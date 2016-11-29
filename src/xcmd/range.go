@@ -11,9 +11,11 @@ package xcmd
 
 import (
 	"github.com/spf13/cobra"
+	"iibench"
 	"log"
 	"sysbench"
 	"time"
+	"xworker"
 )
 
 func NewRangeCommand() *cobra.Command {
@@ -35,7 +37,7 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	wthds := conf.Write_threads
 	rthds := conf.Read_threads
 	thds := wthds + rthds
-	workers, err := sysbench.CreateWorkers(conf, thds)
+	workers, err := xworker.CreateWorkers(conf, thds)
 	if err != nil {
 		log.Panicf("create.workers.error:[%+v]", err)
 	}
@@ -44,16 +46,26 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	monitor := NewMonitor(conf, workers)
 
 	// insert
+	var insert xworker.InsertHandler
+	var query xworker.QueryHandler
 	iworker := workers[:wthds]
-	insert := sysbench.NewInsert(iworker, true)
-	insert.Run()
-
-	// range query
 	qworker := workers[wthds:]
-	query := sysbench.NewRange(qworker, conf.Mysql_range_order)
-	query.Run()
 
+	switch conf.Bench_mode {
+	case "sysbench":
+		insert = sysbench.NewInsert(iworker, true)
+		query = sysbench.NewRange(qworker, conf.Mysql_range_order)
+
+	case "iibench":
+		insert = iibench.NewInsert(iworker, true)
+		query = iibench.NewRange(qworker, conf.Mysql_range_order)
+	}
+
+	// start
+	insert.Run()
+	query.Run()
 	monitor.Start()
+
 	// wait
 	time.Sleep(time.Duration(conf.Max_time) * time.Second)
 

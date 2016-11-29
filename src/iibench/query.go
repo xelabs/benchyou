@@ -7,16 +7,14 @@
  *
  */
 
-package sysbench
+package iibench
 
 import (
 	"fmt"
 	"log"
-	"math"
 	"math/rand"
 	"sync"
 	"time"
-	"xcommon"
 	"xworker"
 )
 
@@ -48,22 +46,13 @@ func (q *Query) Stop() {
 }
 
 func (q *Query) Query(worker *xworker.Worker, num int, id int) {
-	var rid int64
 	session := worker.S
-	bs := int64(math.MaxInt64) / int64(num)
-	lo := bs * int64(id)
-	hi := bs * int64(id+1)
-
 	for !q.stop {
-		if q.random {
-			rid = xcommon.RandInt64(lo, hi)
-		} else {
-			rid = lo
-			lo++
-		}
-
 		table := rand.Int31n(int32(worker.N))
-		sql := fmt.Sprintf("SELECT * FROM benchyou%d WHERE id=%v", table, rid)
+		sql := fmt.Sprintf("select price,dateandtime,customerid from purchases_index%d force index (pdc) where (price>=%.2f) order by price,dateandtime,customerid limit 1",
+			table,
+			float32(rand.Int31n(10000))/100)
+
 		t := time.Now()
 		_, err := session.Exec(sql)
 		if err != nil {

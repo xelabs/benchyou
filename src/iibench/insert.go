@@ -7,7 +7,7 @@
  *
  */
 
-package sysbench
+package iibench
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ func (insert *Insert) Stop() {
 }
 
 func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
-	var rid, rk int64
+	var rid int64
 	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)
 	lo := bs * int64(id)
@@ -57,18 +57,24 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 	for !insert.stop {
 		if insert.random {
 			rid = xcommon.RandInt64(lo, hi)
-			rk = xcommon.RandInt64(lo, hi)
 		} else {
 			rid = lo
-			rk = rid
 			lo++
 		}
 
-		pad := xcommon.RandString(xcommon.Padtemplate)
 		c := xcommon.RandString(xcommon.Ctemplate)
 		table := rand.Int31n(int32(worker.N))
-		sql := fmt.Sprintf("insert into benchyou%d(id,k,c,pad) values(%v,%v,'%s', '%s')",
-			table, rid, rk, c, pad)
+		sql := fmt.Sprintf(`insert into purchases_index%d(transactionid, dateandtime,cashregisterid,customerid,productid,price,data)
+				values(%v,'%v',%v,%v,%v,%.2f,'%s')`,
+			table,
+			rid,
+			time.Now().Format("2006-01-02 15:04:05"),
+			rand.Int31n(10000),
+			rand.Int31n(1000000),
+			rand.Int31n(1000000),
+			float32(rand.Int31n(10000))/100,
+			c,
+		)
 
 		t := time.Now()
 		_, err := session.Exec(sql)

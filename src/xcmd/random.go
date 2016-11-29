@@ -11,9 +11,11 @@ package xcmd
 
 import (
 	"github.com/spf13/cobra"
+	"iibench"
 	"log"
 	"sysbench"
 	"time"
+	"xworker"
 )
 
 func NewRandomCommand() *cobra.Command {
@@ -35,7 +37,7 @@ func randomCommandFn(cmd *cobra.Command, args []string) {
 	wthds := conf.Write_threads
 	rthds := conf.Read_threads
 	thds := wthds + rthds
-	workers, err := sysbench.CreateWorkers(conf, thds)
+	workers, err := xworker.CreateWorkers(conf, thds)
 	if err != nil {
 		log.Panicf("create.workers.error:[%+v]", err)
 	}
@@ -43,16 +45,26 @@ func randomCommandFn(cmd *cobra.Command, args []string) {
 	// monitor
 	monitor := NewMonitor(conf, workers)
 
-	// insert
+	// workers
+	var insert xworker.InsertHandler
+	var query xworker.QueryHandler
 	iworker := workers[:wthds]
-	insert := sysbench.NewInsert(iworker, true)
-	insert.Run()
-
 	qworker := workers[wthds:]
-	query := sysbench.NewQuery(qworker, true)
-	query.Run()
+	switch conf.Bench_mode {
+	case "sysbench":
+		insert = sysbench.NewInsert(iworker, true)
+		query = sysbench.NewQuery(qworker, true)
 
+	case "iibench":
+		insert = iibench.NewInsert(iworker, true)
+		query = iibench.NewQuery(qworker, true)
+	}
+
+	// start
+	insert.Run()
+	query.Run()
 	monitor.Start()
+
 	// wait
 	time.Sleep(time.Duration(conf.Max_time) * time.Second)
 
