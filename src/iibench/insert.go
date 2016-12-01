@@ -55,25 +55,27 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 	hi := bs * int64(id+1)
 
 	for !insert.stop {
-		if insert.random {
-			rid = xcommon.RandInt64(lo, hi)
-		} else {
-			rid = lo
-			lo++
-		}
-
 		c := xcommon.RandString(xcommon.Ctemplate)
 		table := rand.Int31n(int32(worker.N))
-		sql := fmt.Sprintf(`insert into purchases_index%d(transactionid, dateandtime,cashregisterid,customerid,productid,price,data)
-				values(%v,'%v',%v,%v,%v,%.2f,'%s')`,
-			table,
-			rid,
+		columns := "dateandtime,cashregisterid,customerid,productid,price,data"
+		values := fmt.Sprintf("'%v',%v,%v,%v,%.2f,'%s'",
 			time.Now().Format("2006-01-02 15:04:05"),
 			rand.Int31n(10000),
 			rand.Int31n(1000000),
 			rand.Int31n(1000000),
 			float32(rand.Int31n(10000))/100,
-			c,
+			c)
+
+		if insert.random {
+			rid = xcommon.RandInt64(lo, hi)
+			columns += ",transactionid"
+			values += fmt.Sprintf(",%v", rid)
+		}
+
+		sql := fmt.Sprintf(`insert into purchases_index%d(%s) values(%s)`,
+			table,
+			columns,
+			values,
 		)
 
 		t := time.Now()

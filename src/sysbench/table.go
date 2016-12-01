@@ -28,14 +28,14 @@ func (t *Table) Prepare() {
 	count := t.workers[0].N
 	engine := t.workers[0].E
 	for i := 0; i < count; i++ {
-		sql := fmt.Sprintf(`CREATE TABLE benchyou%d (
-							id bigint(20) unsigned NOT NULL,
-							k bigint(20) unsigned NOT NULL DEFAULT '0',
-							c char(120) NOT NULL DEFAULT '',
-							pad char(60) NOT NULL DEFAULT '',
-							PRIMARY KEY (id),
-							KEY k_1 (k)
-							) ENGINE=%s`, i, engine)
+		sql := fmt.Sprintf(`create table benchyou%d (
+							id bigint(20) unsigned not null auto_increment,
+							k bigint(20) unsigned not null default '0',
+							c char(120) not null default '',
+							pad char(60) not null default '',
+							primary key (id),
+							key k_1 (k)
+							) engine=%s`, i, engine)
 
 		_, err := session.Exec(sql)
 		if err != nil {
@@ -49,7 +49,7 @@ func (t *Table) Cleanup() {
 	session := t.workers[0].S
 	count := t.workers[0].N
 	for i := 0; i < count; i++ {
-		sql := fmt.Sprintf(`DROP TABLE benchyou%d;`, i)
+		sql := fmt.Sprintf(`drop table benchyou%d;`, i)
 
 		_, err := session.Exec(sql)
 		if err != nil {

@@ -55,20 +55,27 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 	hi := bs * int64(id+1)
 
 	for !insert.stop {
-		if insert.random {
-			rid = xcommon.RandInt64(lo, hi)
-			rk = xcommon.RandInt64(lo, hi)
-		} else {
-			rid = lo
-			rk = rid
-			lo++
-		}
-
 		pad := xcommon.RandString(xcommon.Padtemplate)
 		c := xcommon.RandString(xcommon.Ctemplate)
 		table := rand.Int31n(int32(worker.N))
-		sql := fmt.Sprintf("insert into benchyou%d(id,k,c,pad) values(%v,%v,'%s', '%s')",
-			table, rid, rk, c, pad)
+		rk = xcommon.RandInt64(lo, hi)
+		columns := "k,c,pad"
+		values := fmt.Sprintf("%v,'%s', '%s'",
+			rk,
+			c,
+			pad,
+		)
+
+		if insert.random {
+			rid = xcommon.RandInt64(lo, hi)
+			columns += ",id"
+			values += fmt.Sprintf(",%v", rid)
+		}
+
+		sql := fmt.Sprintf("insert into benchyou%d(%s) values(%s)",
+			table,
+			columns,
+			values)
 
 		t := time.Now()
 		_, err := session.Exec(sql)

@@ -29,7 +29,7 @@ func (t *Table) Prepare() {
 	engine := t.workers[0].E
 	for i := 0; i < count; i++ {
 		sql := fmt.Sprintf(`create table purchases_index%d (
-							transactionid bigint(20) not null auto_increment,
+							transactionid bigint(20) unsigned not null auto_increment,
 							dateandtime datetime,
 							cashregisterid int not null,
 							customerid int not null,
@@ -52,7 +52,7 @@ func (t *Table) Cleanup() {
 	session := t.workers[0].S
 	count := t.workers[0].N
 	for i := 0; i < count; i++ {
-		sql := fmt.Sprintf(`DROP TABLE purchases_index%d;`, i)
+		sql := fmt.Sprintf(`drop table purchases_index%d;`, i)
 
 		_, err := session.Exec(sql)
 		if err != nil {
