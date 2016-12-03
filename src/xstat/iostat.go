@@ -10,12 +10,13 @@
 package xstat
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"time"
 	"xcommon"
+
+	"golang.org/x/crypto/ssh"
 )
 
 type IOStat struct {
@@ -30,34 +31,29 @@ type IOStat struct {
 }
 
 type IOS struct {
-	conf *xcommon.Conf
-	cmd  string
-	Stat *IOStat
-	All  *IOStat
-	t    *time.Ticker
+	cmd    string
+	Stat   *IOStat
+	All    *IOStat
+	t      *time.Ticker
+	client *ssh.Client
 }
 
 func NewIOS(conf *xcommon.Conf) *IOS {
-	return &IOS{
-		conf: conf,
-		cmd:  "iostat -x -g ALL 1 2",
-		Stat: &IOStat{},
-		All:  &IOStat{},
-		t:    time.NewTicker(time.Second),
+	client, err := sshConnect(
+		conf.Ssh_user,
+		conf.Ssh_password,
+		conf.Ssh_host,
+		conf.Ssh_port)
+	if err != nil {
+		panic(err)
 	}
-}
 
-func (v *IOS) args() []string {
-	args := fmt.Sprintf("sshpass -p %s ssh -o 'StrictHostKeyChecking=no' %s@%s -p %d \"%s\"",
-		v.conf.Ssh_password,
-		v.conf.Ssh_user,
-		v.conf.Ssh_host,
-		v.conf.Ssh_port,
-		v.cmd)
-
-	return []string{
-		"-c",
-		args,
+	return &IOS{
+		cmd:    "iostat -x -g ALL 1 2",
+		Stat:   &IOStat{},
+		All:    &IOStat{},
+		t:      time.NewTicker(time.Second),
+		client: client,
 	}
 }
 
@@ -130,7 +126,13 @@ func (v *IOS) parse(outs string) (err error) {
 }
 
 func (v *IOS) fetch() error {
-	outs, err := xcommon.RunCommand("bash", v.args())
+	session, err := v.client.NewSession()
+	if err != nil {
+		return err
+	}
+	defer session.Close()
+
+	outs, err := session.CombinedOutput(v.cmd)
 	if err != nil {
 		return err
 	}
@@ -141,15 +143,14 @@ func (v *IOS) fetch() error {
 func (v *IOS) Start() {
 	go func() {
 		for _ = range v.t.C {
-			log.Printf("io timer startt\n")
 			if err := v.fetch(); err != nil {
 				log.Printf("iostat.fetch.error[%v]\n", err)
 			}
-			log.Printf("io timer end\n")
 		}
 	}()
 }
 
 func (v *IOS) Stop() {
 	v.t.Stop()
+	v.client.Close()
 }

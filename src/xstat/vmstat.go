@@ -10,12 +10,13 @@
 package xstat
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"time"
 	"xcommon"
+
+	"golang.org/x/crypto/ssh"
 )
 
 type VMStat struct {
@@ -28,34 +29,29 @@ type VMStat struct {
 }
 
 type VMS struct {
-	conf *xcommon.Conf
-	cmd  string
-	Stat *VMStat
-	All  *VMStat
-	t    *time.Ticker
+	cmd    string
+	Stat   *VMStat
+	All    *VMStat
+	t      *time.Ticker
+	client *ssh.Client
 }
 
 func NewVMS(conf *xcommon.Conf) *VMS {
-	return &VMS{
-		conf: conf,
-		cmd:  "vmstat -SM 1 2",
-		Stat: &VMStat{},
-		All:  &VMStat{},
-		t:    time.NewTicker(time.Second),
+	client, err := sshConnect(
+		conf.Ssh_user,
+		conf.Ssh_password,
+		conf.Ssh_host,
+		conf.Ssh_port)
+	if err != nil {
+		panic(err)
 	}
-}
 
-func (v *VMS) args() []string {
-	args := fmt.Sprintf("sshpass -p %s ssh -o 'StrictHostKeyChecking=no' %s@%s -p %d \"%s\"",
-		v.conf.Ssh_password,
-		v.conf.Ssh_user,
-		v.conf.Ssh_host,
-		v.conf.Ssh_port,
-		v.cmd)
-
-	return []string{
-		"-c",
-		args,
+	return &VMS{
+		cmd:    "vmstat -SM 1 2",
+		Stat:   &VMStat{},
+		All:    &VMStat{},
+		t:      time.NewTicker(time.Second),
+		client: client,
 	}
 }
 
@@ -100,7 +96,13 @@ func (v *VMS) parse(outs string) (err error) {
 }
 
 func (v *VMS) fetch() error {
-	outs, err := xcommon.RunCommand("bash", v.args())
+	session, err := v.client.NewSession()
+	if err != nil {
+		return err
+	}
+	defer session.Close()
+
+	outs, err := session.CombinedOutput(v.cmd)
 	if err != nil {
 		return err
 	}
@@ -111,15 +113,14 @@ func (v *VMS) fetch() error {
 func (v *VMS) Start() {
 	go func() {
 		for _ = range v.t.C {
-			log.Printf("vm timer startt\n")
 			if err := v.fetch(); err != nil {
 				log.Printf("vmstat.fetch.error[%v]\n", err)
 			}
-			log.Printf("vm timer end\n")
 		}
 	}()
 }
 
 func (v *VMS) Stop() {
 	v.t.Stop()
+	v.client.Close()
 }

@@ -3,7 +3,7 @@
 
 benchyou is a benchmark tool for MySQL, similar Sysbench.
 
-In addition to real-time monitoring TPS, she also monitors vmstat/iostat via SSH tunnel(need to install sshpass).
+In addition to real-time monitoring TPS, she also monitors vmstat/iostat via SSH tunnel.
 
 benchyou supports two modes for benchmark: sysbench(defaults) and iibench(--bench-mode=iibench).
 
@@ -12,15 +12,17 @@ The idea of stat per operation is inspired by Mark Callaghan, [Small Datum](http
 ## Screenshots
 ```
 ... ...
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op
-[59s]        [r:8,w:128]  11244    10357   887     0      0.00     177    0.02      0.00    0.00      24.58   2.24     8.89
 
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op
-[60s]        [r:8,w:128]  11482    10638   844     0      0.00     177    0.02      0.00    0.00      24.58   2.19     8.70
+time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB
+[59s]        [r:32,w:64]  23352    12415   10937   0      0.00     58     0.00      0.00    0.00      12.34   0.54     8.54    3670    6715
+
+time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB
+[60s]        [r:32,w:64]  23090    12103   10987   0      0.00     56     0.00      0.00    0.00      11.68   0.52     8.72    3656    6727
 
 -----------------------------------------------------------------------------------avg---------------------------------------------------------------------------------------------
 time          tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op            w-rsp(ms)                       r-rsp(ms)
-[60s]        11233    10397   835     0      0.00     2      0.00      0.00    0.00      0.41    0.00     0.00    [avg:0.20,min:0.00,max:493.46]  [avg:0.16,min:0.00,max:360.64]
+[60s]        19350    10161   9189    0      0.00     0      0.00      0.00    0.00      0.19    0.00     0.00    [avg:0.10,min:0.00,max:287.36]  [avg:0.06,min:0.00,max:328.49]
+
 
 ```
 
@@ -40,6 +42,8 @@ rKB/op:  rKB per operation
 wMB:     amount data written to the device(megabytes) per second
 wKB/op:  wKB per operation
 cpu/op:  CPU usecs per operation, measured by vmstat
+freeMB:  the amount of idle memory(megabytes)
+cacheMB: the amount of memory(megabytes) used as cache
 ```
 
 ## Build
@@ -49,13 +53,6 @@ $git clone https://github.com/XeLabs/benchyou
 $cd benchyou
 $make build
 $./bin/benchyou -h
-```
-
-## Required
-
-ubuntu:
-```
-$sudo apt-get install sshpass
 ```
 
 ## Usage

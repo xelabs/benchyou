@@ -10,7 +10,10 @@
 package xstat
 
 import (
+	"fmt"
 	"strings"
+
+	"golang.org/x/crypto/ssh"
 )
 
 func splitColumns(line string) []string {
@@ -21,4 +24,25 @@ func splitColumns(line string) []string {
 		}
 	}
 	return cols
+}
+
+func sshConnect(user, password, host string, port int) (client *ssh.Client, err error) {
+	sshConfig := &ssh.ClientConfig{
+		User: user,
+		Auth: []ssh.AuthMethod{ssh.Password(password)},
+	}
+
+	dsn := fmt.Sprintf("%s:%d", host, port)
+	if client, err = ssh.Dial("tcp", dsn, sshConfig); err != nil {
+		return
+	}
+
+	/*
+		if session, err = client.NewSession(); err != nil {
+			client.Close()
+			return
+		}
+	*/
+
+	return
 }
