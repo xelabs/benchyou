@@ -66,11 +66,11 @@ Usage:
   benchyou [command]
 
 Available Commands:
-  cleanup
   prepare
+  cleanup
   random
-  range
   seq
+  range
 
 Flags:
       --bench-mode string           benchmark mode, {sysbench|iibench}(Default sysbench) (default "sysbench")
@@ -84,6 +84,7 @@ Flags:
       --mysql-user string           MySQL user(Default benchyou) (default "benchyou")
       --oltp-tables-count int       number of tables to create(Default 8) (default 8)
       --read-threads int            number of read threads to use(Default 32) (default 32)
+      --rows-per-commit int         #rows per transaction(Default 1) (default 1)
       --ssh-host string             SSH server host(Default NULL, same as mysql-host)
       --ssh-password string         SSH server password(Default benchyou) (default "benchyou")
       --ssh-port int                SSH server port(Default 22) (default 22)

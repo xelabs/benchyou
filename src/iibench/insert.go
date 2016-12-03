@@ -18,19 +18,23 @@ import (
 	"time"
 	"xcommon"
 	"xworker"
+
+	"github.com/XeLabs/go-mysqlstack/common"
 )
 
 type Insert struct {
-	stop    bool
-	random  bool
-	workers []xworker.Worker
-	lock    sync.WaitGroup
+	stop            bool
+	random          bool
+	rows_per_commit int
+	workers         []xworker.Worker
+	lock            sync.WaitGroup
 }
 
-func NewInsert(workers []xworker.Worker, random bool) xworker.InsertHandler {
+func NewInsert(workers []xworker.Worker, rows_per_commit int, random bool) xworker.InsertHandler {
 	return &Insert{
-		workers: workers,
-		random:  random,
+		random:          random,
+		workers:         workers,
+		rows_per_commit: rows_per_commit,
 	}
 }
 
@@ -48,38 +52,60 @@ func (insert *Insert) Stop() {
 }
 
 func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
-	var rid int64
 	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)
 	lo := bs * int64(id)
 	hi := bs * int64(id+1)
+	columns1 := "dateandtime,cashregisterid,customerid,productid,price,data"
+	columns2 := "dateandtime,cashregisterid,customerid,productid,price,data, transactionid"
+	valfmt1 := "('%v',%v,%v,%v,%.2f,'%s'),"
+	valfmt2 := "('%v',%v,%v,%v,%.2f,'%s', %v),"
 
 	for !insert.stop {
-		c := xcommon.RandString(xcommon.Ctemplate)
-		table := rand.Int31n(int32(worker.N))
-		columns := "dateandtime,cashregisterid,customerid,productid,price,data"
-		values := fmt.Sprintf("'%v',%v,%v,%v,%.2f,'%s'",
-			time.Now().Format("2006-01-02 15:04:05"),
-			rand.Int31n(10000),
-			rand.Int31n(1000000),
-			rand.Int31n(1000000),
-			float32(rand.Int31n(10000))/100,
-			c)
+		var sql, value string
+		buf := common.NewBuffer(256)
 
+		table := rand.Int31n(int32(worker.N))
 		if insert.random {
-			rid = xcommon.RandInt64(lo, hi)
-			columns += ",transactionid"
-			values += fmt.Sprintf(",%v", rid)
+			sql = fmt.Sprintf("insert into purchases_index%d(%s) values", table, columns2)
+		} else {
+			sql = fmt.Sprintf("insert into purchases_index%d(%s) values", table, columns1)
 		}
 
-		sql := fmt.Sprintf(`insert into purchases_index%d(%s) values(%s)`,
-			table,
-			columns,
-			values,
-		)
+		// pack rows
+		for n := 0; n < insert.rows_per_commit; n++ {
+			c := xcommon.RandString(xcommon.Ctemplate)
+			if insert.random {
+				value = fmt.Sprintf(valfmt2,
+					time.Now().Format("2006-01-02 15:04:05"),
+					rand.Int31n(10000),
+					rand.Int31n(1000000),
+					rand.Int31n(1000000),
+					float32(rand.Int31n(10000))/100,
+					c,
+					xcommon.RandInt64(lo, hi),
+				)
+			} else {
+				value = fmt.Sprintf(valfmt1,
+					time.Now().Format("2006-01-02 15:04:05"),
+					rand.Int31n(10000),
+					rand.Int31n(1000000),
+					rand.Int31n(1000000),
+					float32(rand.Int31n(10000))/100,
+					c,
+				)
+			}
+			buf.WriteString(value, len(value))
+		}
 
+		// -1 to trim right ','
+		vals, err := buf.ReadString(buf.Length() - 1)
+		if err != nil {
+			log.Panicf("insert.error[%v]", err)
+		}
+		sql += vals
 		t := time.Now()
-		_, err := session.Exec(sql)
+		_, err = session.Exec(sql)
 		if err != nil {
 			log.Panicf("insert.error[%v]", err)
 		}

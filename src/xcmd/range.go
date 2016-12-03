@@ -53,11 +53,11 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 
 	switch conf.Bench_mode {
 	case "sysbench":
-		insert = sysbench.NewInsert(iworker, true)
+		insert = sysbench.NewInsert(iworker, conf.Rows_per_commit, true)
 		query = sysbench.NewRange(qworker, conf.Mysql_range_order)
 
 	case "iibench":
-		insert = iibench.NewInsert(iworker, true)
+		insert = iibench.NewInsert(iworker, conf.Rows_per_commit, true)
 		query = iibench.NewRange(qworker, conf.Mysql_range_order)
 	}
 

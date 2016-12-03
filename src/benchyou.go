@@ -27,6 +27,7 @@ var (
 	mysql_db           string
 	mysql_table_engine string
 	mysql_range_order  string
+	rows_per_commit    int
 	max_time           int
 	oltp_tables_count  int
 	ssh_host           string
@@ -54,6 +55,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&mysql_db, "mysql-db", "sbtest", "MySQL database name(Default sbtest)")
 	rootCmd.PersistentFlags().StringVar(&mysql_table_engine, "mysql-table-engine", "tokudb", "storage engine to use for the test table {tokudb,innodb,...}(Default tokudb)")
 	rootCmd.PersistentFlags().StringVar(&mysql_range_order, "mysql-range-order", "ASC", "range query sort the result-set in {ASC|DESC} (Default ASC)")
+	rootCmd.PersistentFlags().IntVar(&rows_per_commit, "rows-per-commit", 1, "#rows per transaction(Default 1)")
 	rootCmd.PersistentFlags().IntVar(&max_time, "max-time", 3600, "limit for total execution time in seconds(Default 3600)")
 	rootCmd.PersistentFlags().IntVar(&oltp_tables_count, "oltp-tables-count", 8, "number of tables to create(Default 8)")
 	rootCmd.PersistentFlags().StringVar(&ssh_host, "ssh-host", "", "SSH server host(Default NULL, same as mysql-host)")
@@ -71,6 +73,7 @@ func init() {
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	cobra.EnableCommandSorting = false
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)

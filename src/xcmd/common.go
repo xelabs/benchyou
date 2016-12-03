@@ -68,6 +68,10 @@ func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 		return
 	}
 
+	if conf.Rows_per_commit, err = cmd.Flags().GetInt("rows-per-commit"); err != nil {
+		return
+	}
+
 	if conf.Oltp_tables_count, err = cmd.Flags().GetInt("oltp-tables-count"); err != nil {
 		return
 	}

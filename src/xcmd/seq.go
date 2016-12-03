@@ -52,11 +52,11 @@ func seqCommandFn(cmd *cobra.Command, args []string) {
 	qworker := workers[wthds:]
 	switch conf.Bench_mode {
 	case "sysbench":
-		insert = sysbench.NewInsert(iworker, false)
+		insert = sysbench.NewInsert(iworker, conf.Rows_per_commit, false)
 		query = sysbench.NewQuery(qworker, false)
 
 	case "iibench":
-		insert = iibench.NewInsert(iworker, false)
+		insert = iibench.NewInsert(iworker, conf.Rows_per_commit, false)
 		query = iibench.NewQuery(qworker, false)
 	}
 

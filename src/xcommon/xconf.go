@@ -23,6 +23,7 @@ type Conf struct {
 	Mysql_db           string
 	Mysql_table_engine string
 	Mysql_range_order  string
+	Rows_per_commit    int
 	Max_time           int
 	Oltp_tables_count  int
 	Bench_mode         string

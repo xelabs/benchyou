@@ -18,19 +18,23 @@ import (
 	"time"
 	"xcommon"
 	"xworker"
+
+	"github.com/XeLabs/go-mysqlstack/common"
 )
 
 type Insert struct {
-	stop    bool
-	random  bool
-	workers []xworker.Worker
-	lock    sync.WaitGroup
+	stop            bool
+	random          bool
+	rows_per_commit int
+	workers         []xworker.Worker
+	lock            sync.WaitGroup
 }
 
-func NewInsert(workers []xworker.Worker, random bool) xworker.InsertHandler {
+func NewInsert(workers []xworker.Worker, rows_per_commit int, random bool) xworker.InsertHandler {
 	return &Insert{
-		workers: workers,
-		random:  random,
+		workers:         workers,
+		random:          random,
+		rows_per_commit: rows_per_commit,
 	}
 }
 
@@ -48,37 +52,57 @@ func (insert *Insert) Stop() {
 }
 
 func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
-	var rid, rk int64
 	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)
 	lo := bs * int64(id)
 	hi := bs * int64(id+1)
+	columns1 := "k,c,pad"
+	columns2 := "k,c,pad,id"
+	valfmt1 := "(%v,'%s', '%s'),"
+	valfmt2 := "(%v,'%s', '%s', %v),"
 
 	for !insert.stop {
-		pad := xcommon.RandString(xcommon.Padtemplate)
-		c := xcommon.RandString(xcommon.Ctemplate)
-		table := rand.Int31n(int32(worker.N))
-		rk = xcommon.RandInt64(lo, hi)
-		columns := "k,c,pad"
-		values := fmt.Sprintf("%v,'%s', '%s'",
-			rk,
-			c,
-			pad,
-		)
+		var sql, value string
+		buf := common.NewBuffer(256)
 
+		table := rand.Int31n(int32(worker.N))
 		if insert.random {
-			rid = xcommon.RandInt64(lo, hi)
-			columns += ",id"
-			values += fmt.Sprintf(",%v", rid)
+			sql = fmt.Sprintf("insert into benchyou%d(%s) values", table, columns2)
+		} else {
+			sql = fmt.Sprintf("insert into benchyou%d(%s) values", table, columns1)
 		}
 
-		sql := fmt.Sprintf("insert into benchyou%d(%s) values(%s)",
-			table,
-			columns,
-			values)
+		// pack rows
+		for n := 0; n < insert.rows_per_commit; n++ {
+			pad := xcommon.RandString(xcommon.Padtemplate)
+			c := xcommon.RandString(xcommon.Ctemplate)
+
+			if insert.random {
+				value = fmt.Sprintf(valfmt2,
+					xcommon.RandInt64(lo, hi),
+					c,
+					pad,
+					xcommon.RandInt64(lo, hi),
+				)
+			} else {
+				value = fmt.Sprintf(valfmt1,
+					xcommon.RandInt64(lo, hi),
+					c,
+					pad,
+				)
+			}
+			buf.WriteString(value, len(value))
+		}
+
+		// -1 to trim right ','
+		vals, err := buf.ReadString(buf.Length() - 1)
+		if err != nil {
+			log.Panicf("insert.error[%v]", err)
+		}
+		sql += vals
 
 		t := time.Now()
-		_, err := session.Exec(sql)
+		_, err = session.Exec(sql)
 		if err != nil {
 			log.Panicf("insert.error[%v]", err)
 		}

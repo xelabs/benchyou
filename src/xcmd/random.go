@@ -52,11 +52,11 @@ func randomCommandFn(cmd *cobra.Command, args []string) {
 	qworker := workers[wthds:]
 	switch conf.Bench_mode {
 	case "sysbench":
-		insert = sysbench.NewInsert(iworker, true)
+		insert = sysbench.NewInsert(iworker, conf.Rows_per_commit, true)
 		query = sysbench.NewQuery(qworker, true)
 
 	case "iibench":
-		insert = iibench.NewInsert(iworker, true)
+		insert = iibench.NewInsert(iworker, conf.Rows_per_commit, true)
 		query = iibench.NewQuery(qworker, true)
 	}
 
