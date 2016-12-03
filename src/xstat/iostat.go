@@ -141,9 +141,11 @@ func (v *IOS) fetch() error {
 func (v *IOS) Start() {
 	go func() {
 		for _ = range v.t.C {
+			log.Printf("io timer startt\n")
 			if err := v.fetch(); err != nil {
 				log.Printf("iostat.fetch.error[%v]\n", err)
 			}
+			log.Printf("io timer end\n")
 		}
 	}()
 }

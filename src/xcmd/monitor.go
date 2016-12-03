@@ -22,6 +22,10 @@ import (
 type Stats struct {
 	SystemCS uint64
 	IdleCPU  uint64
+	MemFree  uint64
+	MemCache uint64
+	SwapSi   uint64
+	SwapSo   uint64
 	RRQM_S   float64
 	WRQM_S   float64
 	R_S      float64
@@ -66,6 +70,10 @@ func (m *Monitor) Start() {
 			m.seconds++
 			m.stats.SystemCS = m.vms.Stat.SystemCS
 			m.stats.IdleCPU = m.vms.Stat.IdleCPU
+			m.stats.MemFree = m.vms.Stat.MemFree
+			m.stats.MemCache = m.vms.Stat.MemCache
+			m.stats.SwapSi = m.vms.Stat.SwapSi
+			m.stats.SwapSo = m.vms.Stat.SwapSo
 			m.stats.RRQM_S = m.ios.Stat.RRQM_S
 			m.stats.WRQM_S = m.ios.Stat.WRQM_S
 			m.stats.R_S = m.ios.Stat.R_S
@@ -91,8 +99,8 @@ func (m *Monitor) Start() {
 			rtps := float64(newm.QNums - oldm.QNums)
 			tps := wtps + rtps
 
-			fmt.Fprintln(w, "time   \t\t   thds  \t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\t")
-			line := fmt.Sprintf("[%ds]\t\t[r:%d,w:%d]\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t\n",
+			fmt.Fprintln(w, "time   \t\t   thds  \t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\tfreeMB\tcacheMB\t")
+			line := fmt.Sprintf("[%ds]\t\t[r:%d,w:%d]\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t%d\t%d\n",
 				m.seconds,
 				m.conf.Read_threads,
 				m.conf.Write_threads,
@@ -108,6 +116,8 @@ func (m *Monitor) Start() {
 				m.stats.WKB_S/1024,
 				m.stats.WKB_S/tps,
 				float64(m.stats.SystemCS)/tps,
+				int(m.stats.MemFree),
+				int(m.stats.MemCache),
 			)
 			fmt.Fprintln(w, line)
 
