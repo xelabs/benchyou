@@ -28,7 +28,7 @@ type Metric struct {
 
 type Worker struct {
 	// session
-	S *driver.Conn
+	S driver.Conn
 
 	// mertric
 	M *Metric
@@ -46,7 +46,6 @@ func CreateWorkers(conf *xcommon.Conf, threads int) ([]Worker, error) {
 		conn, err := driver.NewConn(
 			conf.Mysql_user,
 			conf.Mysql_password,
-			"tcp",
 			fmt.Sprintf("%s:%d", conf.Mysql_host, conf.Mysql_port),
 			conf.Mysql_db)
 		if err != nil {

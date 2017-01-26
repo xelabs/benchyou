@@ -91,7 +91,7 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 					pad,
 				)
 			}
-			buf.WriteString(value, len(value))
+			buf.WriteString(value)
 		}
 
 		// -1 to trim right ','
