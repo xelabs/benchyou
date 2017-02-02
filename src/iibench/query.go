@@ -54,8 +54,7 @@ func (q *Query) Query(worker *xworker.Worker, num int, id int) {
 			float32(rand.Int31n(10000))/100)
 
 		t := time.Now()
-		_, err := session.Exec(sql)
-		if err != nil {
+		if err := session.Exec(sql); err != nil {
 			log.Panicf("query.error[%v]", err)
 		}
 		elapsed := time.Since(t)

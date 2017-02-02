@@ -102,8 +102,7 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 		sql += vals
 
 		t := time.Now()
-		_, err = session.Exec(sql)
-		if err != nil {
+		if err = session.Exec(sql); err != nil {
 			log.Panicf("insert.error[%v]", err)
 		}
 		elapsed := time.Since(t)

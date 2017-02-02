@@ -55,8 +55,7 @@ func (r *Range) Query(worker *xworker.Worker, num int, id int) {
 			r.order)
 
 		t := time.Now()
-		_, err := session.Exec(sql)
-		if err != nil {
+		if err := session.Exec(sql); err != nil {
 			log.Panicf("query.error[%v]", err)
 		}
 		elapsed := time.Since(t)

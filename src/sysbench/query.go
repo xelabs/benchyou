@@ -65,8 +65,7 @@ func (q *Query) Query(worker *xworker.Worker, num int, id int) {
 		table := rand.Int31n(int32(worker.N))
 		sql := fmt.Sprintf("SELECT * FROM benchyou%d WHERE id=%v", table, rid)
 		t := time.Now()
-		_, err := session.Exec(sql)
-		if err != nil {
+		if err := session.Exec(sql); err != nil {
 			log.Panicf("query.error[%v]", err)
 		}
 		elapsed := time.Since(t)
