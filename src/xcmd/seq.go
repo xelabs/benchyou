@@ -15,6 +15,7 @@ import (
 	"log"
 	"sysbench"
 	"time"
+	"xcommon"
 	"xworker"
 )
 
@@ -50,14 +51,19 @@ func seqCommandFn(cmd *cobra.Command, args []string) {
 	var query xworker.QueryHandler
 	iworker := workers[:wthds]
 	qworker := workers[wthds:]
+	benchConf := &xcommon.BenchConf{
+		Random:          false,
+		XA:              conf.XA,
+		Rows_per_commit: conf.Rows_per_commit,
+	}
 	switch conf.Bench_mode {
 	case "sysbench":
-		insert = sysbench.NewInsert(iworker, conf.Rows_per_commit, false)
-		query = sysbench.NewQuery(qworker, false)
+		insert = sysbench.NewInsert(benchConf, iworker)
+		query = sysbench.NewQuery(benchConf, qworker)
 
 	case "iibench":
-		insert = iibench.NewInsert(iworker, conf.Rows_per_commit, false)
-		query = iibench.NewQuery(qworker, false)
+		insert = iibench.NewInsert(benchConf, iworker)
+		query = iibench.NewQuery(benchConf, qworker)
 	}
 
 	// start

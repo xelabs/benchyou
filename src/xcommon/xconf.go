@@ -27,4 +27,11 @@ type Conf struct {
 	Max_time           int
 	Oltp_tables_count  int
 	Bench_mode         string
+	XA                 bool
+}
+
+type BenchConf struct {
+	XA              bool
+	Random          bool
+	Rows_per_commit int
 }

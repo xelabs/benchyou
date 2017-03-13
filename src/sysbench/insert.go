@@ -23,18 +23,16 @@ import (
 )
 
 type Insert struct {
-	stop            bool
-	random          bool
-	rows_per_commit int
-	workers         []xworker.Worker
-	lock            sync.WaitGroup
+	stop    bool
+	conf    *xcommon.BenchConf
+	workers []xworker.Worker
+	lock    sync.WaitGroup
 }
 
-func NewInsert(workers []xworker.Worker, rows_per_commit int, random bool) xworker.InsertHandler {
+func NewInsert(conf *xcommon.BenchConf, workers []xworker.Worker) xworker.InsertHandler {
 	return &Insert{
-		workers:         workers,
-		random:          random,
-		rows_per_commit: rows_per_commit,
+		conf:    conf,
+		workers: workers,
 	}
 }
 
@@ -66,18 +64,18 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 		buf := common.NewBuffer(256)
 
 		table := rand.Int31n(int32(worker.N))
-		if insert.random {
+		if insert.conf.Random {
 			sql = fmt.Sprintf("insert into benchyou%d(%s) values", table, columns2)
 		} else {
 			sql = fmt.Sprintf("insert into benchyou%d(%s) values", table, columns1)
 		}
 
 		// pack rows
-		for n := 0; n < insert.rows_per_commit; n++ {
+		for n := 0; n < insert.conf.Rows_per_commit; n++ {
 			pad := xcommon.RandString(xcommon.Padtemplate)
 			c := xcommon.RandString(xcommon.Ctemplate)
 
-			if insert.random {
+			if insert.conf.Random {
 				value = fmt.Sprintf(valfmt2,
 					xcommon.RandInt64(lo, hi),
 					c,
@@ -102,8 +100,29 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 		sql += vals
 
 		t := time.Now()
+		if insert.conf.XA {
+			worker.XID = fmt.Sprintf("BXID-%v-%d", time.Now().Format("20060102150405"), id)
+			start := fmt.Sprintf("xa start '%s'", worker.XID)
+			if err = session.Exec(start); err != nil {
+				log.Panicf("insert.error[%v]", err)
+			}
+		}
 		if err = session.Exec(sql); err != nil {
 			log.Panicf("insert.error[%v]", err)
+		}
+		if insert.conf.XA {
+			end := fmt.Sprintf("xa end '%s'", worker.XID)
+			if err = session.Exec(end); err != nil {
+				log.Panicf("insert.error[%v]", err)
+			}
+			prepare := fmt.Sprintf("xa prepare '%s'", worker.XID)
+			if err = session.Exec(prepare); err != nil {
+				log.Panicf("insert.error[%v]", err)
+			}
+			commit := fmt.Sprintf("xa commit '%s'", worker.XID)
+			if err = session.Exec(commit); err != nil {
+				log.Panicf("insert.error[%v]", err)
+			}
 		}
 		elapsed := time.Since(t)
 

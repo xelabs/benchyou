@@ -15,6 +15,7 @@ import (
 	"log"
 	"sysbench"
 	"time"
+	"xcommon"
 	"xworker"
 )
 
@@ -50,14 +51,19 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	var query xworker.QueryHandler
 	iworker := workers[:wthds]
 	qworker := workers[wthds:]
+	benchConf := &xcommon.BenchConf{
+		Random:          true,
+		XA:              conf.XA,
+		Rows_per_commit: conf.Rows_per_commit,
+	}
 
 	switch conf.Bench_mode {
 	case "sysbench":
-		insert = sysbench.NewInsert(iworker, conf.Rows_per_commit, true)
+		insert = sysbench.NewInsert(benchConf, iworker)
 		query = sysbench.NewRange(qworker, conf.Mysql_range_order)
 
 	case "iibench":
-		insert = iibench.NewInsert(iworker, conf.Rows_per_commit, true)
+		insert = iibench.NewInsert(benchConf, iworker)
 		query = iibench.NewRange(qworker, conf.Mysql_range_order)
 	}
 

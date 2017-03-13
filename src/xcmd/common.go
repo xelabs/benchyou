@@ -84,6 +84,14 @@ func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 		return
 	}
 
+	xa := 0
+	if xa, err = cmd.Flags().GetInt("mysql-enable-xa"); err != nil {
+		return
+	}
+	if xa > 0 {
+		conf.XA = true
+	}
+
 	if conf.Bench_mode, err = cmd.Flags().GetString("bench-mode"); err != nil {
 		return
 	}

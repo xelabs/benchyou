@@ -27,6 +27,7 @@ var (
 	mysql_db           string
 	mysql_table_engine string
 	mysql_range_order  string
+	mysql_enable_xa    int
 	rows_per_commit    int
 	max_time           int
 	oltp_tables_count  int
@@ -46,6 +47,7 @@ var (
 )
 
 func init() {
+	cobra.EnableCommandSorting = false
 	rootCmd.PersistentFlags().IntVar(&write_threads, "write-threads", 32, "number of write threads to use(Default 32)")
 	rootCmd.PersistentFlags().IntVar(&read_threads, "read-threads", 32, "number of read threads to use(Default 32)")
 	rootCmd.PersistentFlags().StringVar(&mysql_host, "mysql-host", "", "MySQL server host(Default NULL)")
@@ -55,6 +57,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&mysql_db, "mysql-db", "sbtest", "MySQL database name(Default sbtest)")
 	rootCmd.PersistentFlags().StringVar(&mysql_table_engine, "mysql-table-engine", "tokudb", "storage engine to use for the test table {tokudb,innodb,...}(Default tokudb)")
 	rootCmd.PersistentFlags().StringVar(&mysql_range_order, "mysql-range-order", "ASC", "range query sort the result-set in {ASC|DESC} (Default ASC)")
+	rootCmd.PersistentFlags().IntVar(&mysql_enable_xa, "mysql-enable-xa", 0, "enable MySQL xa transaction for insertion {0|1} (Default 0)")
 	rootCmd.PersistentFlags().IntVar(&rows_per_commit, "rows-per-commit", 1, "#rows per transaction(Default 1)")
 	rootCmd.PersistentFlags().IntVar(&max_time, "max-time", 3600, "limit for total execution time in seconds(Default 3600)")
 	rootCmd.PersistentFlags().IntVar(&oltp_tables_count, "oltp-tables-count", 8, "number of tables to create(Default 8)")
@@ -73,7 +76,6 @@ func init() {
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	cobra.EnableCommandSorting = false
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)

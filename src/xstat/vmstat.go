@@ -10,6 +10,7 @@
 package xstat
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -43,7 +44,7 @@ func NewVMS(conf *xcommon.Conf) *VMS {
 		conf.Ssh_host,
 		conf.Ssh_port)
 	if err != nil {
-		panic(err)
+		fmt.Printf("WARNING: ssh error: %+v\n", err)
 	}
 
 	return &VMS{
@@ -96,6 +97,9 @@ func (v *VMS) parse(outs string) (err error) {
 }
 
 func (v *VMS) fetch() error {
+	if v.client == nil {
+		return nil
+	}
 	session, err := v.client.NewSession()
 	if err != nil {
 		return err

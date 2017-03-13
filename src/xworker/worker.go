@@ -36,6 +36,9 @@ type Worker struct {
 	// engine
 	E string
 
+	// xid
+	XID string
+
 	// table number
 	N int
 }

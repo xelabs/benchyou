@@ -15,20 +15,21 @@ import (
 	"math/rand"
 	"sync"
 	"time"
+	"xcommon"
 	"xworker"
 )
 
 type Query struct {
 	stop    bool
-	random  bool
+	conf    *xcommon.BenchConf
 	workers []xworker.Worker
 	lock    sync.WaitGroup
 }
 
-func NewQuery(workers []xworker.Worker, random bool) xworker.QueryHandler {
+func NewQuery(conf *xcommon.BenchConf, workers []xworker.Worker) xworker.QueryHandler {
 	return &Query{
+		conf:    conf,
 		workers: workers,
-		random:  random,
 	}
 }
 

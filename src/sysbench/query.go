@@ -22,15 +22,15 @@ import (
 
 type Query struct {
 	stop    bool
-	random  bool
+	conf    *xcommon.BenchConf
 	workers []xworker.Worker
 	lock    sync.WaitGroup
 }
 
-func NewQuery(workers []xworker.Worker, random bool) xworker.QueryHandler {
+func NewQuery(conf *xcommon.BenchConf, workers []xworker.Worker) xworker.QueryHandler {
 	return &Query{
+		conf:    conf,
 		workers: workers,
-		random:  random,
 	}
 }
 
@@ -55,7 +55,7 @@ func (q *Query) Query(worker *xworker.Worker, num int, id int) {
 	hi := bs * int64(id+1)
 
 	for !q.stop {
-		if q.random {
+		if q.conf.Random {
 			rid = xcommon.RandInt64(lo, hi)
 		} else {
 			rid = lo

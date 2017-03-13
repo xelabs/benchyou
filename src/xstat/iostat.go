@@ -10,6 +10,7 @@
 package xstat
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -45,7 +46,7 @@ func NewIOS(conf *xcommon.Conf) *IOS {
 		conf.Ssh_host,
 		conf.Ssh_port)
 	if err != nil {
-		panic(err)
+		fmt.Printf("WARNING: ssh error: %+v\n", err)
 	}
 
 	return &IOS{
@@ -126,6 +127,9 @@ func (v *IOS) parse(outs string) (err error) {
 }
 
 func (v *IOS) fetch() error {
+	if v.client == nil {
+		return nil
+	}
 	session, err := v.client.NewSession()
 	if err != nil {
 		return err

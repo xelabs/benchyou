@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/XeLabs/benchyou.png)](https://travis-ci.org/XeLabs/benchyou)
+[![Build Status](https://travis-ci.org/XeLabs/benchyou.svg?branch=master)](https://travis-ci.org/XeLabs/benchyou)
 ## About
 
 benchyou is a benchmark tool for MySQL, similar Sysbench.
@@ -73,6 +73,7 @@ Flags:
       --bench-mode string           benchmark mode, {sysbench|iibench}(Default sysbench) (default "sysbench")
       --max-time int                limit for total execution time in seconds(Default 3600) (default 3600)
       --mysql-db string             MySQL database name(Default sbtest) (default "sbtest")
+      --mysql-enable-xa int         enable MySQL xa transaction for insertion {0|1} (Default 0)
       --mysql-host string           MySQL server host(Default NULL)
       --mysql-password string       MySQL password(Default benchyou) (default "benchyou")
       --mysql-port int              MySQL server port(Default 3306) (default 3306)
@@ -94,10 +95,10 @@ Flags:
 sysbench:
 ```
 prepare 64 tables:
-./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --mysql-user=benchyou --mysql-password=benchyou  --oltp-tables-count=64 prepare
+./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou  --oltp-tables-count=64 prepare
 
 cleanup 64 tables:
-./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --mysql-user=benchyou --mysql-password=benchyou  --oltp-tables-count=64 cleanup
+./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou  --oltp-tables-count=64 cleanup
 
 random(Write/Read Ratio=128:8):
  ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --ssh-user=benchyou --ssh-password=benchyou --oltp-tables-count=64 --write-threads=128 --read-threads=8 --max-time=3600 random

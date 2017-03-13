@@ -96,11 +96,13 @@ func (m *Monitor) Start() {
 
 			newm = xworker.AllWorkersMetric(m.workers)
 			wtps := float64(newm.WNums - oldm.WNums)
+			wcosts := float64(newm.WCosts - oldm.WCosts)
 			rtps := float64(newm.QNums - oldm.QNums)
+			rcosts := float64(newm.QCosts - oldm.QCosts)
 			tps := wtps + rtps
 
-			fmt.Fprintln(w, "time   \t\t   thds  \t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\tfreeMB\tcacheMB\t")
-			line := fmt.Sprintf("[%ds]\t\t[r:%d,w:%d]\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t%d\t%d\n",
+			fmt.Fprintln(w, "time   \t\t   thds  \t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\tfreeMB\tcacheMB\t w-rsp(ms)\tr-rsp(ms)")
+			line := fmt.Sprintf("[%ds]\t\t[r:%d,w:%d]\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t%d\t%d\t%.2f\t%.2f\n",
 				m.seconds,
 				m.conf.Read_threads,
 				m.conf.Write_threads,
@@ -118,6 +120,8 @@ func (m *Monitor) Start() {
 				float64(m.stats.SystemCS)/tps,
 				int(m.stats.MemFree),
 				int(m.stats.MemCache),
+				float64(wcosts)/1e6/wtps,
+				float64(rcosts)/1e6/rtps,
 			)
 			fmt.Fprintln(w, line)
 
