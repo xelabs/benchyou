@@ -105,7 +105,7 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 		t := time.Now()
 
 		if insert.conf.XA {
-			worker.XID = fmt.Sprintf("BXID-%v-%d", time.Now().Format("20060102150405"), id)
+			worker.XID = fmt.Sprintf("BXID-%v-%v", time.Now().Format("20060102150405"), (rand.Int63n(hi-lo) + lo))
 			start := fmt.Sprintf("xa start '%s'", worker.XID)
 			if err = session.Exec(start); err != nil {
 				log.Panicf("insert.error[%v]", err)
