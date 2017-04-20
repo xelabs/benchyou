@@ -15,6 +15,7 @@ import (
 	"math"
 	"math/rand"
 	"sync"
+	"sync/atomic"
 	"time"
 	"xcommon"
 	"xworker"
@@ -23,10 +24,11 @@ import (
 )
 
 type Insert struct {
-	stop    bool
-	conf    *xcommon.BenchConf
-	workers []xworker.Worker
-	lock    sync.WaitGroup
+	stop     bool
+	requests uint64
+	conf     *xcommon.BenchConf
+	workers  []xworker.Worker
+	lock     sync.WaitGroup
 }
 
 func NewInsert(conf *xcommon.BenchConf, workers []xworker.Worker) xworker.InsertHandler {
@@ -47,6 +49,10 @@ func (insert *Insert) Run() {
 func (insert *Insert) Stop() {
 	insert.stop = true
 	insert.lock.Wait()
+}
+
+func (insert *Insert) Rows() uint64 {
+	return atomic.LoadUint64(&insert.requests)
 }
 
 func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
@@ -70,7 +76,7 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 			sql = fmt.Sprintf("insert into purchases_index%d(%s) values", table, columns1)
 		}
 
-		// pack rows
+		// pack requests
 		for n := 0; n < insert.conf.Rows_per_commit; n++ {
 			c := xcommon.RandString(xcommon.Ctemplate)
 			if insert.conf.Random {
@@ -146,6 +152,7 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 			worker.M.WMin = nsec
 		}
 		worker.M.WNums++
+		atomic.AddUint64(&insert.requests, 1)
 	}
 	insert.lock.Done()
 }

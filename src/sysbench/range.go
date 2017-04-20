@@ -15,16 +15,18 @@ import (
 	"math"
 	"math/rand"
 	"sync"
+	"sync/atomic"
 	"time"
 	"xcommon"
 	"xworker"
 )
 
 type Range struct {
-	workers []xworker.Worker
-	stop    bool
-	lock    sync.WaitGroup
-	order   string
+	stop     bool
+	requests uint64
+	order    string
+	workers  []xworker.Worker
+	lock     sync.WaitGroup
 }
 
 func NewRange(workers []xworker.Worker, order string) *Range {
@@ -45,6 +47,10 @@ func (r *Range) Run() {
 func (r *Range) Stop() {
 	r.stop = true
 	r.lock.Wait()
+}
+
+func (r *Range) Rows() uint64 {
+	return atomic.LoadUint64(&r.requests)
 }
 
 func (r *Range) Query(worker *xworker.Worker, num int, id int) {
@@ -80,6 +86,7 @@ func (r *Range) Query(worker *xworker.Worker, num int, id int) {
 			worker.M.QMin = nsec
 		}
 		worker.M.QNums++
+		atomic.AddUint64(&r.requests, 1)
 	}
 	r.lock.Done()
 }

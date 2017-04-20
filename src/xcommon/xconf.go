@@ -25,6 +25,7 @@ type Conf struct {
 	Mysql_range_order  string
 	Rows_per_commit    int
 	Max_time           int
+	Max_request        uint64
 	Oltp_tables_count  int
 	Bench_mode         string
 	XA                 bool

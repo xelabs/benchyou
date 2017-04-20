@@ -30,6 +30,7 @@ var (
 	mysql_enable_xa    int
 	rows_per_commit    int
 	max_time           int
+	max_request        uint64
 	oltp_tables_count  int
 	ssh_host           string
 	ssh_user           string
@@ -60,6 +61,7 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&mysql_enable_xa, "mysql-enable-xa", 0, "enable MySQL xa transaction for insertion {0|1} (Default 0)")
 	rootCmd.PersistentFlags().IntVar(&rows_per_commit, "rows-per-commit", 1, "#rows per transaction(Default 1)")
 	rootCmd.PersistentFlags().IntVar(&max_time, "max-time", 3600, "limit for total execution time in seconds(Default 3600)")
+	rootCmd.PersistentFlags().Uint64Var(&max_request, "max-request", 0, "limit for total requests, including write and read(Default 0, means no limits)")
 	rootCmd.PersistentFlags().IntVar(&oltp_tables_count, "oltp-tables-count", 8, "number of tables to create(Default 8)")
 	rootCmd.PersistentFlags().StringVar(&ssh_host, "ssh-host", "", "SSH server host(Default NULL, same as mysql-host)")
 	rootCmd.PersistentFlags().StringVar(&ssh_user, "ssh-user", "benchyou", "SSH server user(Default benchyou)")

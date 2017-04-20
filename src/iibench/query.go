@@ -14,16 +14,18 @@ import (
 	"log"
 	"math/rand"
 	"sync"
+	"sync/atomic"
 	"time"
 	"xcommon"
 	"xworker"
 )
 
 type Query struct {
-	stop    bool
-	conf    *xcommon.BenchConf
-	workers []xworker.Worker
-	lock    sync.WaitGroup
+	stop     bool
+	requests uint64
+	conf     *xcommon.BenchConf
+	workers  []xworker.Worker
+	lock     sync.WaitGroup
 }
 
 func NewQuery(conf *xcommon.BenchConf, workers []xworker.Worker) xworker.QueryHandler {
@@ -44,6 +46,10 @@ func (q *Query) Run() {
 func (q *Query) Stop() {
 	q.stop = true
 	q.lock.Wait()
+}
+
+func (q *Query) Rows() uint64 {
+	return atomic.LoadUint64(&q.requests)
 }
 
 func (q *Query) Query(worker *xworker.Worker, num int, id int) {
@@ -74,6 +80,7 @@ func (q *Query) Query(worker *xworker.Worker, num int, id int) {
 			worker.M.QMin = nsec
 		}
 		worker.M.QNums++
+		atomic.AddUint64(&q.requests, 1)
 	}
 	q.lock.Done()
 }

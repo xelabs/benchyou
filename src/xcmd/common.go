@@ -80,6 +80,10 @@ func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 		return
 	}
 
+	if conf.Max_request, err = cmd.Flags().GetUint64("max-request"); err != nil {
+		return
+	}
+
 	if conf.Mysql_range_order, err = cmd.Flags().GetString("mysql-range-order"); err != nil {
 		return
 	}

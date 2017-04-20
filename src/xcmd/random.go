@@ -71,8 +71,25 @@ func randomCommandFn(cmd *cobra.Command, args []string) {
 	query.Run()
 	monitor.Start()
 
-	// wait
-	time.Sleep(time.Duration(conf.Max_time) * time.Second)
+	done := make(chan bool)
+	go func(ins xworker.InsertHandler, q xworker.QueryHandler, max uint64) {
+		if max == 0 {
+			return
+		}
+
+		for {
+			time.Sleep(time.Millisecond * 10)
+			all := ins.Rows() + q.Rows()
+			if all >= max {
+				done <- true
+			}
+		}
+	}(insert, query, conf.Max_request)
+
+	select {
+	case <-time.After(time.Duration(conf.Max_time) * time.Second):
+	case <-done:
+	}
 
 	// stop
 	insert.Stop()

@@ -101,8 +101,8 @@ func (m *Monitor) Start() {
 			rcosts := float64(newm.QCosts - oldm.QCosts)
 			tps := wtps + rtps
 
-			fmt.Fprintln(w, "time   \t\t   thds  \t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\tfreeMB\tcacheMB\t w-rsp(ms)\tr-rsp(ms)")
-			line := fmt.Sprintf("[%ds]\t\t[r:%d,w:%d]\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t%d\t%d\t%.2f\t%.2f\n",
+			fmt.Fprintln(w, "time   \t\t   thds  \t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\tfreeMB\tcacheMB\t w-rsp(ms)\tr-rsp(ms)\t  total-number")
+			line := fmt.Sprintf("[%ds]\t\t[r:%d,w:%d]\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t%d\t%d\t %.2f\t%.2f\t  %v\n",
 				m.seconds,
 				m.conf.Read_threads,
 				m.conf.Write_threads,
@@ -122,6 +122,7 @@ func (m *Monitor) Start() {
 				int(m.stats.MemCache),
 				float64(wcosts)/1e6/wtps,
 				float64(rcosts)/1e6/rtps,
+				(newm.WNums + newm.QNums),
 			)
 			fmt.Fprintln(w, line)
 
@@ -137,34 +138,35 @@ func (m *Monitor) Stop() {
 
 	// avg results at the end
 	w := tabwriter.NewWriter(os.Stdout, 4, 4, 2, ' ', 0)
-	counts := float64(m.seconds)
+	seconds := float64(m.seconds)
 	all := xworker.AllWorkersMetric(m.workers)
-	wtps := float64(all.WNums)
-	rtps := float64(all.QNums)
-	tps := wtps + rtps
+	writes := float64(all.WNums)
+	reads := float64(all.QNums)
+	events := writes + reads
 
-	fmt.Fprintln(w, "-----------------------------------------------------------------------------------avg---------------------------------------------------------------------------------------------")
-	fmt.Fprintln(w, "time   \t\t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\t          w-rsp(ms)\t          r-rsp(ms)")
-	line := fmt.Sprintf("[%ds]\t\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t[avg:%.2f,min:%.2f,max:%.2f]\t[avg:%.2f,min:%.2f,max:%.2f]\n",
+	fmt.Fprintln(w, "----------------------------------------------------------------------------------------------avg---------------------------------------------------------------------------------------------")
+	fmt.Fprintln(w, "time   \t\t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\t          w-rsp(ms)\t          r-rsp(ms)              total-number")
+	line := fmt.Sprintf("[%ds]\t\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t[avg:%.2f,min:%.2f,max:%.2f]\t[avg:%.2f,min:%.2f,max:%.2f]\t    %v\n",
 		m.seconds,
-		int(tps/counts),
-		int(wtps/counts),
-		int(rtps/counts),
-		int(m.stats.R_S/counts),
-		m.stats.R_S/tps,
-		int(m.stats.W_S/counts),
-		m.stats.W_S/tps/counts,
-		m.stats.RKB_S/1024/counts,
-		m.stats.RKB_S/tps/counts,
-		m.stats.WKB_S/1024/counts,
-		m.stats.WKB_S/tps/counts,
-		float64(m.stats.SystemCS)/tps/counts,
-		float64(all.WCosts)/1e6/wtps/counts,
+		int(events/seconds),
+		int(writes/seconds),
+		int(reads/seconds),
+		int(m.stats.R_S/seconds),
+		m.stats.R_S/events,
+		int(m.stats.W_S/seconds),
+		m.stats.W_S/events/seconds,
+		m.stats.RKB_S/1024/seconds,
+		m.stats.RKB_S/events/seconds,
+		m.stats.WKB_S/1024/seconds,
+		m.stats.WKB_S/events/seconds,
+		float64(m.stats.SystemCS)/events/seconds,
+		float64(all.WCosts)/1e6/writes/seconds,
 		float64(all.WMin)/1e6,
 		float64(all.WMax)/1e6,
-		float64(all.QCosts)/1e6/rtps/counts,
+		float64(all.QCosts)/1e6/reads/seconds,
 		float64(all.QMin)/1e6,
 		float64(all.QMax)/1e6,
+		(all.WNums + all.QNums),
 	)
 	fmt.Fprintln(w, line)
 	w.Flush()
