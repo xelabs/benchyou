@@ -50,7 +50,8 @@ func CreateWorkers(conf *xcommon.Conf, threads int) ([]Worker, error) {
 			conf.Mysql_user,
 			conf.Mysql_password,
 			fmt.Sprintf("%s:%d", conf.Mysql_host, conf.Mysql_port),
-			conf.Mysql_db)
+			conf.Mysql_db,
+			"utf8")
 		if err != nil {
 			return nil, err
 		}
