@@ -11,8 +11,10 @@ package xworker
 
 import (
 	"fmt"
-	"github.com/XeLabs/go-mysqlstack/driver"
+	"log"
 	"xcommon"
+
+	"github.com/XeLabs/go-mysqlstack/driver"
 )
 
 type Metric struct {
@@ -43,7 +45,7 @@ type Worker struct {
 	N int
 }
 
-func CreateWorkers(conf *xcommon.Conf, threads int) ([]Worker, error) {
+func CreateWorkers(conf *xcommon.Conf, threads int) []Worker {
 	var workers []Worker
 	for i := 0; i < threads; i++ {
 		conn, err := driver.NewConn(
@@ -53,7 +55,7 @@ func CreateWorkers(conf *xcommon.Conf, threads int) ([]Worker, error) {
 			conf.Mysql_db,
 			"utf8")
 		if err != nil {
-			return nil, err
+			log.Panicf("create.worker.error:%v", err)
 		}
 		workers = append(workers, Worker{
 			S: conn,
@@ -63,8 +65,7 @@ func CreateWorkers(conf *xcommon.Conf, threads int) ([]Worker, error) {
 		},
 		)
 	}
-
-	return workers, nil
+	return workers
 }
 
 func AllWorkersMetric(workers []Worker) *Metric {

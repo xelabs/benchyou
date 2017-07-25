@@ -11,8 +11,6 @@ package xcmd
 
 import (
 	"github.com/spf13/cobra"
-	"iibench"
-	"log"
 	"sysbench"
 	"time"
 	"xcommon"
@@ -38,10 +36,7 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	wthds := conf.Write_threads
 	rthds := conf.Read_threads
 	thds := wthds + rthds
-	workers, err := xworker.CreateWorkers(conf, thds)
-	if err != nil {
-		log.Panicf("create.workers.error:[%+v]", err)
-	}
+	workers := xworker.CreateWorkers(conf, thds)
 
 	// monitor
 	monitor := NewMonitor(conf, workers)
@@ -54,18 +49,10 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	benchConf := &xcommon.BenchConf{
 		Random:          true,
 		XA:              conf.XA,
-		Rows_per_commit: conf.Rows_per_commit,
+		Rows_per_insert: conf.Rows_per_insert,
 	}
-
-	switch conf.Bench_mode {
-	case "sysbench":
-		insert = sysbench.NewInsert(benchConf, iworker)
-		query = sysbench.NewRange(qworker, conf.Mysql_range_order)
-
-	case "iibench":
-		insert = iibench.NewInsert(benchConf, iworker)
-		query = iibench.NewRange(qworker, conf.Mysql_range_order)
-	}
+	insert = sysbench.NewInsert(benchConf, iworker)
+	query = sysbench.NewRange(qworker, conf.Mysql_range_order)
 
 	// start
 	insert.Run()

@@ -20,3 +20,15 @@ type QueryHandler interface {
 	Stop()
 	Rows() uint64
 }
+
+type DeleteHandler interface {
+	Run()
+	Stop()
+	Rows() uint64
+}
+
+type UpdateHandler interface {
+	Run()
+	Stop()
+	Rows() uint64
+}

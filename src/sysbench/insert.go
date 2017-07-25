@@ -77,7 +77,7 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 		}
 
 		// pack requests
-		for n := 0; n < insert.conf.Rows_per_commit; n++ {
+		for n := 0; n < insert.conf.Rows_per_insert; n++ {
 			pad := xcommon.RandString(xcommon.Padtemplate)
 			c := xcommon.RandString(xcommon.Ctemplate)
 
@@ -97,7 +97,6 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 			}
 			buf.WriteString(value)
 		}
-
 		// -1 to trim right ','
 		vals, err := buf.ReadString(buf.Length() - 1)
 		if err != nil {
@@ -106,28 +105,32 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 		sql += vals
 
 		t := time.Now()
-		if insert.conf.XA {
-			worker.XID = fmt.Sprintf("BXID-%v-%v", time.Now().Format("20060102150405"), (rand.Int63n(hi-lo) + lo))
-			start := fmt.Sprintf("xa start '%s'", worker.XID)
-			if err = session.Exec(start); err != nil {
-				log.Panicf("insert.error[%v]", err)
+		// Txn start.
+		mod := worker.M.WNums % uint64(insert.conf.Batch_per_commit)
+		if insert.conf.Batch_per_commit > 1 {
+			if mod == 0 {
+				if err := session.Exec("begin"); err != nil {
+					log.Panicf("insert.error[%v]", err)
+				}
 			}
 		}
-		if err = session.Exec(sql); err != nil {
+		// XA start.
+		if insert.conf.XA {
+			xaStart(worker, hi, lo)
+		}
+		if err := session.Exec(sql); err != nil {
 			log.Panicf("insert.error[%v]", err)
 		}
+		// XA end.
 		if insert.conf.XA {
-			end := fmt.Sprintf("xa end '%s'", worker.XID)
-			if err = session.Exec(end); err != nil {
-				log.Panicf("insert.error[%v]", err)
-			}
-			prepare := fmt.Sprintf("xa prepare '%s'", worker.XID)
-			if err = session.Exec(prepare); err != nil {
-				log.Panicf("insert.error[%v]", err)
-			}
-			commit := fmt.Sprintf("xa commit '%s'", worker.XID)
-			if err = session.Exec(commit); err != nil {
-				log.Panicf("insert.error[%v]", err)
+			xaEnd(worker)
+		}
+		// Txn end.
+		if insert.conf.Batch_per_commit > 1 {
+			if mod == uint64(insert.conf.Batch_per_commit-1) {
+				if err := session.Exec("commit"); err != nil {
+					log.Panicf("insert.error[%v]", err)
+				}
 			}
 		}
 		elapsed := time.Since(t)
@@ -150,4 +153,29 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 		atomic.AddUint64(&insert.requests, 1)
 	}
 	insert.lock.Done()
+}
+
+func xaStart(worker *xworker.Worker, hi int64, lo int64) {
+	session := worker.S
+	worker.XID = fmt.Sprintf("BXID-%v-%v", time.Now().Format("20060102150405"), (rand.Int63n(hi-lo) + lo))
+	start := fmt.Sprintf("xa start '%s'", worker.XID)
+	if err := session.Exec(start); err != nil {
+		log.Panicf("xa.start..error[%v]", err)
+	}
+}
+
+func xaEnd(worker *xworker.Worker) {
+	session := worker.S
+	end := fmt.Sprintf("xa end '%s'", worker.XID)
+	if err := session.Exec(end); err != nil {
+		log.Panicf("xa.end.error[%v]", err)
+	}
+	prepare := fmt.Sprintf("xa prepare '%s'", worker.XID)
+	if err := session.Exec(prepare); err != nil {
+		log.Panicf("xa.prepare.error[%v]", err)
+	}
+	commit := fmt.Sprintf("xa commit '%s'", worker.XID)
+	if err := session.Exec(commit); err != nil {
+		log.Panicf("xa.commit.error[%v]", err)
+	}
 }

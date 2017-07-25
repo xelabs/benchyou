@@ -5,52 +5,43 @@ benchyou is a benchmark tool for MySQL, similar Sysbench.
 
 In addition to real-time monitoring TPS, she also monitors vmstat/iostat via SSH tunnel.
 
-benchyou supports two modes for benchmark: sysbench(defaults) and iibench(--bench-mode=iibench).
-
 The idea of stat per operation is inspired by Mark Callaghan, [Small Datum](http://smalldatum.blogspot.com)
 
 ## Screenshots
 ```
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[1s]         [r:32,w:32]  51037    4020    47017   0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         7.26       0.63         51037
+time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[10s]        [r:4,w:4,u:4,d:4]  5372     3842    1530    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.14       2.61         45652
 
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[2s]         [r:32,w:32]  49047    4576    44471   0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         6.79       0.72         100084
+time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[11s]        [r:4,w:4,u:4,d:4]  5325     3827    1498    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.12       2.66         50977
 
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[3s]         [r:32,w:32]  57432    5157    52275   0      0.00     2716   0.05      0.00    0.00      23.59   0.42     2.47    3092    3970      6.08       0.61         157516
+time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[12s]        [r:4,w:4,u:4,d:4]  5342     3832    1510    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.11       2.65         56319
 
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[4s]         [r:32,w:32]  49988    3919    46069   0      0.00     2886   0.06      0.00    0.00      24.89   0.51     3.26    3082    3973      8.01       0.69         207504
+time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[13s]        [r:4,w:4,u:4,d:4]  5335     3842    1493    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.13       2.68         61654
 
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[5s]         [r:32,w:32]  46725    3518    43207   0      0.00     2370   0.05      0.00    0.00      20.39   0.45     2.94    3077    3977      8.98       0.74         254229
+time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[14s]        [r:4,w:4,u:4,d:4]  5321     3840    1481    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.09       2.70         66975
 
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[6s]         [r:32,w:32]  57784    4582    53202   0      0.00     1965   0.03      0.00    0.00      17.10   0.30     2.07    3071    3980      6.85       0.60         312013
+time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[15s]        [r:4,w:4,u:4,d:4]  5365     3865    1500    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.10       2.67         72340
 
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[7s]         [r:32,w:32]  56314    4754    51560   0      0.00     2765   0.05      0.00    0.00      24.09   0.44     2.86    3066    3983      6.53       0.62         368327
+time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[16s]        [r:4,w:4,u:4,d:4]  5352     3843    1509    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.13       2.65         77692
 
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[8s]         [r:32,w:32]  61745    5163    56582   0      0.00     2741   0.04      0.00    0.00      23.66   0.39     2.51    3059    3988      6.01       0.56         430072
-
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[9s]         [r:32,w:32]  63196    4961    58235   82     0.00     2994   0.05      2.70    0.04      26.46   0.43     2.93    3050    3992      6.30       0.55         493268
-
-time            thds       tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[10s]        [r:32,w:32]  59810    4531    55279   160    0.00     2795   0.05      5.47    0.09      24.45   0.42     3.04    3031    3996      6.90       0.58         553078
+time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[17s]        [r:4,w:4,u:4,d:4]  5330     3816    1514    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.14       2.64         83022
 
 ----------------------------------------------------------------------------------------------avg---------------------------------------------------------------------------------------------
-time          tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op            w-rsp(ms)                      r-rsp(ms)              total-number
-[10s]        55680    4552    51128   16     0.00     279    0.00      0.55    0.00      2.44    0.00     0.03    [avg:0.69,min:0.00,max:67.53]  [avg:0.06,min:0.00,max:74.82]      556805
-
+time          tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op            w-rsp(ms)                       r-rsp(ms)              total-number
+[17s]        5026     3601    1424    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    [avg:0.18,min:0.00,max:165.72]  [avg:0.16,min:0.00,max:24.81]      85455
 ```
 
 the columns:
 ```
 time:         benchmark uptime
-thds:         read threads and write threads
+thds:         read threads and write(insert/update/delete) threads
 tps:          transaction per second, including write and read
 wtps:         write tps
 rtps:         read tps
@@ -94,7 +85,10 @@ Available Commands:
   range
 
 Flags:
-      --bench-mode string           benchmark mode, {sysbench|iibench}(Default sysbench) (default "sysbench")
+      --read-threads int            number of read threads to use(Default 32) (default 32)
+      --write-threads int           number of write threads to use(Default 32) (default 32)
+      --update-threads int          number of update threads to use(Default 0)
+      --delete-threads int          number of delete threads to use(Default 0)
       --max-request uint            limit for total requests, including write and read(Default 0, means no limits)
       --max-time int                limit for total execution time in seconds(Default 3600) (default 3600)
       --mysql-db string             MySQL database name(Default sbtest) (default "sbtest")
@@ -106,18 +100,16 @@ Flags:
       --mysql-table-engine string   storage engine to use for the test table {tokudb,innodb,...}(Default tokudb) (default "tokudb")
       --mysql-user string           MySQL user(Default benchyou) (default "benchyou")
       --oltp-tables-count int       number of tables to create(Default 8) (default 8)
-      --read-threads int            number of read threads to use(Default 32) (default 32)
-      --rows-per-commit int         #rows per transaction(Default 1) (default 1)
+      --rows-per-insert int         #rows per insert(Default 1) (default 1)
+      --batch-per-commit int        #rows per transaction(Default 1) (default 1)
       --ssh-host string             SSH server host(Default NULL, same as mysql-host)
       --ssh-password string         SSH server password(Default benchyou) (default "benchyou")
       --ssh-port int                SSH server port(Default 22) (default 22)
       --ssh-user string             SSH server user(Default benchyou) (default "benchyou")
-      --write-threads int           number of write threads to use(Default 32) (default 32)
 ```
 
 ## Examples
 
-sysbench:
 ```
 prepare 64 tables:
 ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou  --oltp-tables-count=64 prepare
@@ -125,18 +117,21 @@ prepare 64 tables:
 cleanup 64 tables:
 ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou  --oltp-tables-count=64 cleanup
 
-random(Write/Read Ratio=128:8):
+random insert(Write/Read Ratio=128:8):
  ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --ssh-user=benchyou --ssh-password=benchyou --oltp-tables-count=64 --write-threads=128 --read-threads=8 --max-time=3600 random
 
-sequential(Write/Read Ratio=128:8):
+sequential insert(Write/Read Ratio=128:8):
  ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --ssh-user=benchyou --ssh-password=benchyou --oltp-tables-count=64 --write-threads=128 --read-threads=8 --max-time=3600 seq
+
+mix(Write/Read/Update/Delete Ratio=4:4:4:4):
+ ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --ssh-user=benchyou --ssh-password=benchyou --oltp-tables-count=64 --write-threads=4 --read-threads=4 --update-threads=4 --delete-threads=4 --max-time=3600 random
+
+insert multiple rows(10 rows per insert):
+ ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --ssh-user=benchyou --ssh-password=benchyou --oltp-tables-count=64 --write-threads=4 --rows-per-insert=10 --max-time=3600 random
+
+batch update(10 rows per transaction):
+ ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --ssh-user=benchyou --ssh-password=benchyou --oltp-tables-count=64 --update-threads=4 --batch-per-commit=10 --max-time=3600 random
 
 query-range(Write/Read Ratio=128:8):
  ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --ssh-user=benchyou --ssh-password=benchyou --oltp-tables-count=64 --write-threads=128 --read-threads=8 --max-time=3600 --mysql-range-order=DESC range
-
-```
-
-iibench:
-```
-... --bench-mode=iibench
 ```

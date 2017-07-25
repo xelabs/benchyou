@@ -11,8 +11,6 @@ package xcmd
 
 import (
 	"github.com/spf13/cobra"
-	"iibench"
-	"log"
 	"sysbench"
 	"xworker"
 )
@@ -33,26 +31,9 @@ func prepareCommandFn(cmd *cobra.Command, args []string) {
 	}
 
 	// worker
-	switch conf.Bench_mode {
-	case "sysbench":
-		workers, err := xworker.CreateWorkers(conf, 1)
-		if err != nil {
-			log.Panicf("prepare.error:[%+v]", err)
-		}
-		table := sysbench.NewTable(workers)
-		table.Prepare()
-
-	case "iibench":
-		workers, err := xworker.CreateWorkers(conf, 1)
-		if err != nil {
-			log.Panicf("prepare.error:[%+v]", err)
-		}
-		table := iibench.NewTable(workers)
-		table.Prepare()
-
-	default:
-		panic("unknow.bench.mode")
-	}
+	workers := xworker.CreateWorkers(conf, 1)
+	table := sysbench.NewTable(workers)
+	table.Prepare()
 }
 
 func NewCleanupCommand() *cobra.Command {
@@ -71,21 +52,7 @@ func cleanupCommandFn(cmd *cobra.Command, args []string) {
 	}
 
 	// worker
-	switch conf.Bench_mode {
-	case "sysbench":
-		workers, err := xworker.CreateWorkers(conf, 1)
-		if err != nil {
-			log.Panicf("cleanup.error:[%+v]", err)
-		}
-		table := sysbench.NewTable(workers)
-		table.Cleanup()
-
-	case "iibench":
-		workers, err := xworker.CreateWorkers(conf, 1)
-		if err != nil {
-			log.Panicf("cleanup.error:[%+v]", err)
-		}
-		table := iibench.NewTable(workers)
-		table.Cleanup()
-	}
+	workers := xworker.CreateWorkers(conf, 1)
+	table := sysbench.NewTable(workers)
+	table.Cleanup()
 }

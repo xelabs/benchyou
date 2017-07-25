@@ -102,10 +102,12 @@ func (m *Monitor) Start() {
 			tps := wtps + rtps
 
 			fmt.Fprintln(w, "time   \t\t   thds  \t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\tfreeMB\tcacheMB\t w-rsp(ms)\tr-rsp(ms)\t  total-number")
-			line := fmt.Sprintf("[%ds]\t\t[r:%d,w:%d]\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t%d\t%d\t %.2f\t%.2f\t  %v\n",
+			line := fmt.Sprintf("[%ds]\t\t[r:%d,w:%d,u:%d,d:%d]\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t%d\t%d\t %.2f\t%.2f\t  %v\n",
 				m.seconds,
 				m.conf.Read_threads,
 				m.conf.Write_threads,
+				m.conf.Update_threads,
+				m.conf.Delete_threads,
 				int(tps),
 				int(wtps),
 				int(rtps),

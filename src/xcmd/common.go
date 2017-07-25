@@ -11,13 +11,24 @@ package xcmd
 
 import (
 	"github.com/spf13/cobra"
+	"sysbench"
+	"time"
 	"xcommon"
+	"xworker"
 )
 
 func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 	conf = &xcommon.Conf{}
 
 	if conf.Write_threads, err = cmd.Flags().GetInt("write-threads"); err != nil {
+		return
+	}
+
+	if conf.Update_threads, err = cmd.Flags().GetInt("update-threads"); err != nil {
+		return
+	}
+
+	if conf.Delete_threads, err = cmd.Flags().GetInt("delete-threads"); err != nil {
 		return
 	}
 
@@ -68,11 +79,15 @@ func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 		return
 	}
 
-	if conf.Rows_per_commit, err = cmd.Flags().GetInt("rows-per-commit"); err != nil {
+	if conf.Oltp_tables_count, err = cmd.Flags().GetInt("oltp-tables-count"); err != nil {
 		return
 	}
 
-	if conf.Oltp_tables_count, err = cmd.Flags().GetInt("oltp-tables-count"); err != nil {
+	if conf.Rows_per_insert, err = cmd.Flags().GetInt("rows-per-insert"); err != nil {
+		return
+	}
+
+	if conf.Batch_per_commit, err = cmd.Flags().GetInt("batch-per-commit"); err != nil {
 		return
 	}
 
@@ -95,10 +110,68 @@ func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 	if xa > 0 {
 		conf.XA = true
 	}
+	return
+}
 
-	if conf.Bench_mode, err = cmd.Flags().GetString("bench-mode"); err != nil {
-		return
+func start(conf *xcommon.Conf, benchConf *xcommon.BenchConf) {
+	// worker
+	var workers []xworker.Worker
+	wthds := conf.Write_threads
+	rthds := conf.Read_threads
+	uthds := conf.Update_threads
+	dthds := conf.Delete_threads
+
+	// workers
+	iworkers := xworker.CreateWorkers(conf, wthds)
+	insert := sysbench.NewInsert(benchConf, iworkers)
+	workers = append(workers, iworkers...)
+
+	qworkers := xworker.CreateWorkers(conf, rthds)
+	query := sysbench.NewQuery(benchConf, qworkers)
+	workers = append(workers, qworkers...)
+
+	uworkers := xworker.CreateWorkers(conf, uthds)
+	update := sysbench.NewUpdate(benchConf, uworkers)
+	workers = append(workers, uworkers...)
+
+	dworkers := xworker.CreateWorkers(conf, dthds)
+	delete := sysbench.NewDelete(benchConf, dworkers)
+	workers = append(workers, dworkers...)
+
+	// monitor
+	monitor := NewMonitor(conf, workers)
+
+	// start
+	insert.Run()
+	query.Run()
+	update.Run()
+	delete.Run()
+	monitor.Start()
+
+	done := make(chan bool)
+	go func(i xworker.InsertHandler, q xworker.QueryHandler, u xworker.UpdateHandler, d xworker.DeleteHandler, max uint64) {
+		if max == 0 {
+			return
+		}
+
+		for {
+			time.Sleep(time.Millisecond * 10)
+			all := i.Rows() + q.Rows() + u.Rows() + d.Rows()
+			if all >= max {
+				done <- true
+			}
+		}
+	}(insert, query, update, delete, conf.Max_request)
+
+	select {
+	case <-time.After(time.Duration(conf.Max_time) * time.Second):
+	case <-done:
 	}
 
-	return
+	// stop
+	insert.Stop()
+	query.Stop()
+	update.Stop()
+	delete.Stop()
+	monitor.Stop()
 }
