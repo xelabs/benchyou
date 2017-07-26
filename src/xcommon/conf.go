@@ -31,11 +31,5 @@ type Conf struct {
 	Max_request        uint64
 	Oltp_tables_count  int
 	XA                 bool
-}
-
-type BenchConf struct {
-	XA               bool
-	Random           bool
-	Rows_per_insert  int
-	Batch_per_commit int
+	Random             bool
 }

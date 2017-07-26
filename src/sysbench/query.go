@@ -24,12 +24,12 @@ import (
 type Query struct {
 	stop     bool
 	requests uint64
-	conf     *xcommon.BenchConf
+	conf     *xcommon.Conf
 	workers  []xworker.Worker
 	lock     sync.WaitGroup
 }
 
-func NewQuery(conf *xcommon.BenchConf, workers []xworker.Worker) xworker.QueryHandler {
+func NewQuery(conf *xcommon.Conf, workers []xworker.Worker) xworker.Handler {
 	return &Query{
 		conf:    conf,
 		workers: workers,

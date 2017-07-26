@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/XeLabs/benchyou.svg?branch=master)](https://travis-ci.org/XeLabs/benchyou)
+[![Build Status](https://travis-ci.org/XeLabs/benchyou.svg?branch=master)](https://travis-ci.org/XeLabs/benchyou) [![codecov.io](https://codecov.io/gh/XeLabs/benchyou/graphs/badge.svg)](https://codecov.io/gh/XeLabs/benchyou/branch/master)
 ## About
 
 benchyou is a benchmark tool for MySQL, similar Sysbench.
@@ -9,33 +9,39 @@ The idea of stat per operation is inspired by Mark Callaghan, [Small Datum](http
 
 ## Screenshots
 ```
-time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[10s]        [r:4,w:4,u:4,d:4]  5372     3842    1530    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.14       2.61         45652
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[1s]         [r:4,w:128,u:4,d:4]  33508    24056   9452    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         5.05       0.39         33508
 
-time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[11s]        [r:4,w:4,u:4,d:4]  5325     3827    1498    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.12       2.66         50977
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[2s]         [r:4,w:128,u:4,d:4]  29929    21287   8642    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         6.12       0.45         63437
 
-time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[12s]        [r:4,w:4,u:4,d:4]  5342     3832    1510    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.11       2.65         56319
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[3s]         [r:4,w:128,u:4,d:4]  27967    20215   7752    0      0.00     2472   0.09      0.00    0.00      25.57   0.94     6.22    6185    4570      6.51       0.51         91404
 
-time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[13s]        [r:4,w:4,u:4,d:4]  5335     3842    1493    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.13       2.68         61654
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[4s]         [r:4,w:128,u:4,d:4]  30072    21560   8512    0      0.00     2235   0.07      0.00    0.00      23.55   0.80     5.60    6174    4577      5.74       0.45         121476
 
-time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[14s]        [r:4,w:4,u:4,d:4]  5321     3840    1481    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.09       2.70         66975
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[5s]         [r:4,w:128,u:4,d:4]  32182    23609   8573    0      0.00     2810   0.09      0.00    0.00      29.55   0.94     5.91    6165    4584      5.45       0.46         153658
 
-time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[15s]        [r:4,w:4,u:4,d:4]  5365     3865    1500    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.10       2.67         72340
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[6s]         [r:4,w:128,u:4,d:4]  34548    24771   9777    0      0.00     2823   0.08      0.00    0.00      29.28   0.87     5.80    6156    4590      5.14       0.40         188206
 
-time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[16s]        [r:4,w:4,u:4,d:4]  5352     3843    1509    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.13       2.65         77692
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[7s]         [r:4,w:128,u:4,d:4]  35185    24844   10341   0      0.00     2553   0.07      0.00    0.00      26.40   0.77     5.74    6145    4596      5.20       0.38         223391
 
-time            thds             tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
-[17s]        [r:4,w:4,u:4,d:4]  5330     3816    1514    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    0       0         3.14       2.64         83022
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[8s]         [r:4,w:128,u:4,d:4]  36266    26030   10236   0      0.00     2880   0.08      0.00    0.00      29.84   0.84     5.86    6137    4603      4.95       0.38         259657
+
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[9s]         [r:4,w:128,u:4,d:4]  37414    26834   10580   0      0.00     3234   0.09      0.00    0.00      34.07   0.93     6.06    6125    4611      4.81       0.37         297071
+
+time            thds               tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op  freeMB  cacheMB   w-rsp(ms)  r-rsp(ms)    total-number
+[10s]        [r:4,w:128,u:4,d:4]  36158    25845   10313   0      0.00     3329   0.09      0.00    0.00      35.53   1.01     6.43    6113    4619      4.98       0.38         333229
 
 ----------------------------------------------------------------------------------------------avg---------------------------------------------------------------------------------------------
 time          tps     wtps    rtps    rio    rio/op   wio    wio/op    rMB     rKB/op    wMB     wKB/op   cpu/op            w-rsp(ms)                       r-rsp(ms)              total-number
-[17s]        5026     3601    1424    0      0.00     0      0.00      0.00    0.00      0.00    0.00     0.00    [avg:0.18,min:0.00,max:165.72]  [avg:0.16,min:0.00,max:24.81]      85455
+[10s]        33642    24132   9509    0      0.00     332    0.00      0.00    0.00      3.55    0.01     0.07    [avg:0.53,min:0.00,max:149.79]  [avg:0.04,min:0.00,max:27.63]      336420
 ```
 
 the columns:

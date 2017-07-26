@@ -24,12 +24,12 @@ import (
 type Update struct {
 	stop     bool
 	requests uint64
-	conf     *xcommon.BenchConf
+	conf     *xcommon.Conf
 	workers  []xworker.Worker
 	lock     sync.WaitGroup
 }
 
-func NewUpdate(conf *xcommon.BenchConf, workers []xworker.Worker) xworker.UpdateHandler {
+func NewUpdate(conf *xcommon.Conf, workers []xworker.Worker) xworker.Handler {
 	return &Update{
 		conf:    conf,
 		workers: workers,

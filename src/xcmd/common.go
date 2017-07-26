@@ -113,7 +113,7 @@ func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 	return
 }
 
-func start(conf *xcommon.Conf, benchConf *xcommon.BenchConf) {
+func start(conf *xcommon.Conf) {
 	// worker
 	var workers []xworker.Worker
 	wthds := conf.Write_threads
@@ -123,19 +123,19 @@ func start(conf *xcommon.Conf, benchConf *xcommon.BenchConf) {
 
 	// workers
 	iworkers := xworker.CreateWorkers(conf, wthds)
-	insert := sysbench.NewInsert(benchConf, iworkers)
+	insert := sysbench.NewInsert(conf, iworkers)
 	workers = append(workers, iworkers...)
 
 	qworkers := xworker.CreateWorkers(conf, rthds)
-	query := sysbench.NewQuery(benchConf, qworkers)
+	query := sysbench.NewQuery(conf, qworkers)
 	workers = append(workers, qworkers...)
 
 	uworkers := xworker.CreateWorkers(conf, uthds)
-	update := sysbench.NewUpdate(benchConf, uworkers)
+	update := sysbench.NewUpdate(conf, uworkers)
 	workers = append(workers, uworkers...)
 
 	dworkers := xworker.CreateWorkers(conf, dthds)
-	delete := sysbench.NewDelete(benchConf, dworkers)
+	delete := sysbench.NewDelete(conf, dworkers)
 	workers = append(workers, dworkers...)
 
 	// monitor
@@ -149,7 +149,7 @@ func start(conf *xcommon.Conf, benchConf *xcommon.BenchConf) {
 	monitor.Start()
 
 	done := make(chan bool)
-	go func(i xworker.InsertHandler, q xworker.QueryHandler, u xworker.UpdateHandler, d xworker.DeleteHandler, max uint64) {
+	go func(i xworker.Handler, q xworker.Handler, u xworker.Handler, d xworker.Handler, max uint64) {
 		if max == 0 {
 			return
 		}

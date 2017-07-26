@@ -10,9 +10,10 @@
 package xcommon
 
 import (
-	"github.com/XeLabs/go-mysqlstack/common"
 	"math/rand"
 	"time"
+
+	"github.com/XeLabs/go-mysqlstack/common"
 )
 
 func init() {

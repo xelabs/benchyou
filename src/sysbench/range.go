@@ -29,7 +29,7 @@ type Range struct {
 	lock     sync.WaitGroup
 }
 
-func NewRange(workers []xworker.Worker, order string) *Range {
+func NewRange(conf *xcommon.Conf, workers []xworker.Worker, order string) *Range {
 	return &Range{
 		workers: workers,
 		order:   order,

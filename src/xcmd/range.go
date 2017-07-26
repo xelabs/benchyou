@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/cobra"
 	"sysbench"
 	"time"
-	"xcommon"
 	"xworker"
 )
 
@@ -31,6 +30,7 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	if err != nil {
 		panic(err)
 	}
+	conf.Random = true
 
 	// worker
 	wthds := conf.Write_threads
@@ -42,17 +42,10 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	monitor := NewMonitor(conf, workers)
 
 	// insert
-	var insert xworker.InsertHandler
-	var query xworker.QueryHandler
 	iworker := workers[:wthds]
 	qworker := workers[wthds:]
-	benchConf := &xcommon.BenchConf{
-		Random:          true,
-		XA:              conf.XA,
-		Rows_per_insert: conf.Rows_per_insert,
-	}
-	insert = sysbench.NewInsert(benchConf, iworker)
-	query = sysbench.NewRange(qworker, conf.Mysql_range_order)
+	insert := sysbench.NewInsert(conf, iworker)
+	query := sysbench.NewRange(conf, qworker, conf.Mysql_range_order)
 
 	// start
 	insert.Run()
@@ -60,14 +53,14 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	monitor.Start()
 
 	done := make(chan bool)
-	go func(ins xworker.InsertHandler, q xworker.QueryHandler, max uint64) {
+	go func(i xworker.Handler, q xworker.Handler, max uint64) {
 		if max == 0 {
 			return
 		}
 
 		for {
 			time.Sleep(time.Second)
-			all := ins.Rows() + q.Rows()
+			all := i.Rows() + q.Rows()
 			if all >= max {
 				done <- true
 			}

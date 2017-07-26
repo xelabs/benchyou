@@ -26,12 +26,12 @@ import (
 type Insert struct {
 	stop     bool
 	requests uint64
-	conf     *xcommon.BenchConf
+	conf     *xcommon.Conf
 	workers  []xworker.Worker
 	lock     sync.WaitGroup
 }
 
-func NewInsert(conf *xcommon.BenchConf, workers []xworker.Worker) xworker.InsertHandler {
+func NewInsert(conf *xcommon.Conf, workers []xworker.Worker) xworker.Handler {
 	return &Insert{
 		conf:    conf,
 		workers: workers,
