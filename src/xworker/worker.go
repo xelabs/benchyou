@@ -47,14 +47,22 @@ type Worker struct {
 
 func CreateWorkers(conf *xcommon.Conf, threads int) []Worker {
 	var workers []Worker
+	var conn driver.Conn
+	var err error
+
+	// Check database is exists or not.
+	utf8 := "utf8"
+	dsn := fmt.Sprintf("%s:%d", conf.Mysql_host, conf.Mysql_port)
+	if conn, err = driver.NewConn(conf.Mysql_user, conf.Mysql_password, dsn, "", utf8); err != nil {
+		log.Panicf("create.worker.check.database.error:%+v", err)
+	}
+	sql := fmt.Sprintf("create database if not exists `%s`", conf.Mysql_db)
+	if err := conn.Exec(sql); err != nil {
+		log.Panicf("create.worker.check.database.exec[%s].error:%+v", sql, err)
+	}
+
 	for i := 0; i < threads; i++ {
-		conn, err := driver.NewConn(
-			conf.Mysql_user,
-			conf.Mysql_password,
-			fmt.Sprintf("%s:%d", conf.Mysql_host, conf.Mysql_port),
-			conf.Mysql_db,
-			"utf8")
-		if err != nil {
+		if conn, err = driver.NewConn(conf.Mysql_user, conf.Mysql_password, dsn, conf.Mysql_db, utf8); err != nil {
 			log.Panicf("create.worker.error:%v", err)
 		}
 		workers = append(workers, Worker{
