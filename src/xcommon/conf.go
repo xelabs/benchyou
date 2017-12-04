@@ -19,7 +19,7 @@ type Conf struct {
 	SSHUser          string
 	SSHPassword      string
 	SSHPort          int
-	MysqlHost       string
+	MysqlHost        string
 	MysqlUser        string
 	MysqlPassword    string
 	MysqlPort        int

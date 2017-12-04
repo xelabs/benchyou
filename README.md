@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/XeLabs/benchyou.svg?branch=master)](https://travis-ci.org/XeLabs/benchyou) [![codecov.io](https://codecov.io/gh/XeLabs/benchyou/graphs/badge.svg)](https://codecov.io/gh/XeLabs/benchyou/branch/master)
+[![Build Status](https://travis-ci.org/XeLabs/benchyou.svg?branch=master)](https://travis-ci.org/XeLabs/benchyou) [![Go Report Card](https://goreportcard.com/badge/github.com/XeLabs/benchyou)](https://goreportcard.com/report/github.com/XeLabs/benchyou)  [![codecov.io](https://codecov.io/gh/XeLabs/benchyou/graphs/badge.svg)](https://codecov.io/gh/XeLabs/benchyou/branch/master)
+
 ## About
 
 benchyou is a benchmark tool for MySQL, similar Sysbench.

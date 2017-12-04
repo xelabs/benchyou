@@ -29,8 +29,8 @@ type Stats struct {
 	SwapSo   uint64
 	RRQM_S   float64
 	WRQM_S   float64
-	R_S      float64
-	W_S      float64
+	RS      float64
+	WS      float64
 	RKB_S    float64
 	WKB_S    float64
 	AWAIT    float64
@@ -80,8 +80,8 @@ func (m *Monitor) Start() {
 			m.stats.SwapSo = m.vms.Stat.SwapSo
 			m.stats.RRQM_S = m.ios.Stat.RRQM_S
 			m.stats.WRQM_S = m.ios.Stat.WRQM_S
-			m.stats.R_S = m.ios.Stat.R_S
-			m.stats.W_S = m.ios.Stat.W_S
+			m.stats.RS = m.ios.Stat.RS
+			m.stats.WS = m.ios.Stat.WS
 			m.stats.RKB_S = m.ios.Stat.RKB_S
 			m.stats.WKB_S = m.ios.Stat.WKB_S
 			m.stats.AWAIT = m.ios.Stat.AWAIT
@@ -91,8 +91,8 @@ func (m *Monitor) Start() {
 			m.all.IdleCPU += m.stats.IdleCPU
 			m.all.RRQM_S += m.stats.RRQM_S
 			m.all.WRQM_S += m.stats.WRQM_S
-			m.all.R_S += m.stats.R_S
-			m.all.W_S += m.stats.W_S
+			m.all.RS += m.stats.RS
+			m.all.WS += m.stats.WS
 			m.all.RKB_S += m.stats.RKB_S
 			m.all.WKB_S += m.stats.WKB_S
 			m.all.AWAIT += m.stats.AWAIT
@@ -115,10 +115,10 @@ func (m *Monitor) Start() {
 				int(tps),
 				int(wtps),
 				int(rtps),
-				int(m.stats.R_S),
-				m.stats.R_S/tps,
-				int(m.stats.W_S),
-				m.stats.W_S/tps,
+				int(m.stats.RS),
+				m.stats.RS/tps,
+				int(m.stats.WS),
+				m.stats.WS/tps,
 				m.stats.RKB_S/1024,
 				m.stats.RKB_S/tps,
 				m.stats.WKB_S/1024,
@@ -158,10 +158,10 @@ func (m *Monitor) Stop() {
 		int(events/seconds),
 		int(writes/seconds),
 		int(reads/seconds),
-		int(m.stats.R_S/seconds),
-		m.stats.R_S/events,
-		int(m.stats.W_S/seconds),
-		m.stats.W_S/events/seconds,
+		int(m.stats.RS/seconds),
+		m.stats.RS/events,
+		int(m.stats.WS/seconds),
+		m.stats.WS/events/seconds,
 		m.stats.RKB_S/1024/seconds,
 		m.stats.RKB_S/events/seconds,
 		m.stats.WKB_S/1024/seconds,

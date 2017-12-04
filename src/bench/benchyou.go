@@ -18,27 +18,27 @@ import (
 )
 
 var (
-	writeThreads      int
-	readThreads       int
-	updateThreads     int
-	deleteThreads     int
-	mysqlHost         string
-	mysqlPort         int
-	mysqlUser         string
-	mysqlPassword     string
-	mysqlDb           string
+	writeThreads     int
+	readThreads      int
+	updateThreads    int
+	deleteThreads    int
+	mysqlHost        string
+	mysqlPort        int
+	mysqlUser        string
+	mysqlPassword    string
+	mysqlDb          string
 	mysqlTableEngine string
 	mysqlRangeOrder  string
 	mysqlEnableXa    int
 	rowsPerInsert    int
 	batchPerCommit   int
-	maxTime           int
-	maxRequest        uint64
+	maxTime          int
+	maxRequest       uint64
 	oltpTablesCount  int
-	sshHost           string
-	sshUser           string
-	sshPassword       string
-	sshPort           int
+	sshHost          string
+	sshUser          string
+	sshPassword      string
+	sshPort          int
 )
 
 var (

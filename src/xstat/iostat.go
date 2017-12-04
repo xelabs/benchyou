@@ -24,8 +24,8 @@ import (
 type IOStat struct {
 	RRQM_S float64
 	WRQM_S float64
-	R_S    float64
-	W_S    float64
+	RS    float64
+	WS    float64
 	RKB_S  float64
 	WKB_S  float64
 	AWAIT  float64
@@ -96,15 +96,15 @@ func (v *IOS) parse(outs string) (err error) {
 	}
 	v.All.WRQM_S += v.Stat.WRQM_S
 
-	if v.Stat.R_S, err = strconv.ParseFloat(cols[3], 64); err != nil {
+	if v.Stat.RS, err = strconv.ParseFloat(cols[3], 64); err != nil {
 		return
 	}
-	v.All.R_S += v.Stat.R_S
+	v.All.RS += v.Stat.RS
 
-	if v.Stat.W_S, err = strconv.ParseFloat(cols[4], 64); err != nil {
+	if v.Stat.WS, err = strconv.ParseFloat(cols[4], 64); err != nil {
 		return
 	}
-	v.All.W_S += v.Stat.W_S
+	v.All.WS += v.Stat.WS
 
 	if v.Stat.RKB_S, err = strconv.ParseFloat(cols[5], 64); err != nil {
 		return
