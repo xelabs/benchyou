@@ -16,6 +16,7 @@ import (
 	"xworker"
 )
 
+// NewRangeCommand creates the new cmd.
 func NewRangeCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "range",
@@ -33,8 +34,8 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	conf.Random = true
 
 	// worker
-	wthds := conf.Write_threads
-	rthds := conf.Read_threads
+	wthds := conf.WriteThreads
+	rthds := conf.ReadThreads
 	thds := wthds + rthds
 	workers := xworker.CreateWorkers(conf, thds)
 
@@ -45,7 +46,7 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 	iworker := workers[:wthds]
 	qworker := workers[wthds:]
 	insert := sysbench.NewInsert(conf, iworker)
-	query := sysbench.NewRange(conf, qworker, conf.Mysql_range_order)
+	query := sysbench.NewRange(conf, qworker, conf.MysqlRangeOrder)
 
 	// start
 	insert.Run()
@@ -65,10 +66,10 @@ func rangeCommandFn(cmd *cobra.Command, args []string) {
 				done <- true
 			}
 		}
-	}(insert, query, conf.Max_request)
+	}(insert, query, conf.MaxRequest)
 
 	select {
-	case <-time.After(time.Duration(conf.Max_time) * time.Second):
+	case <-time.After(time.Duration(conf.MaxTime) * time.Second):
 	case <-done:
 	}
 

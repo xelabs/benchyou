@@ -20,10 +20,12 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
+// RandInt64 rands the int65 between min and max.
 func RandInt64(min int64, max int64) int64 {
 	return min + int64(rand.Int63n(int64(max-min)))
 }
 
+// RandString rands the strings format by template.
 func RandString(template string) string {
 	nums := "0123456789"
 	alpha := "abcdefghijklmnopqrstuvwxyz"
@@ -40,6 +42,5 @@ func RandString(template string) string {
 			buf.WriteU8(template[i])
 		}
 	}
-
 	return common.BytesToString(buf.Datas())
 }

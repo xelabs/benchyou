@@ -23,6 +23,7 @@ import (
 	"github.com/XeLabs/go-mysqlstack/common"
 )
 
+// Insert tuple.
 type Insert struct {
 	stop     bool
 	requests uint64
@@ -31,6 +32,7 @@ type Insert struct {
 	lock     sync.WaitGroup
 }
 
+// NewInsert creates the new insert handler.
 func NewInsert(conf *xcommon.Conf, workers []xworker.Worker) xworker.Handler {
 	return &Insert{
 		conf:    conf,
@@ -38,6 +40,7 @@ func NewInsert(conf *xcommon.Conf, workers []xworker.Worker) xworker.Handler {
 	}
 }
 
+// Run used to start the worker.
 func (insert *Insert) Run() {
 	threads := len(insert.workers)
 	for i := 0; i < threads; i++ {
@@ -46,15 +49,18 @@ func (insert *Insert) Run() {
 	}
 }
 
+// Stop used to stop the worker.
 func (insert *Insert) Stop() {
 	insert.stop = true
 	insert.lock.Wait()
 }
 
+// Rows returns the row numbers.
 func (insert *Insert) Rows() uint64 {
 	return atomic.LoadUint64(&insert.requests)
 }
 
+// Insert used to execute the insert query.
 func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)
@@ -77,7 +83,7 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 		}
 
 		// pack requests
-		for n := 0; n < insert.conf.Rows_per_insert; n++ {
+		for n := 0; n < insert.conf.RowsPerInsert; n++ {
 			pad := xcommon.RandString(xcommon.Padtemplate)
 			c := xcommon.RandString(xcommon.Ctemplate)
 
@@ -106,8 +112,8 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 
 		t := time.Now()
 		// Txn start.
-		mod := worker.M.WNums % uint64(insert.conf.Batch_per_commit)
-		if insert.conf.Batch_per_commit > 1 {
+		mod := worker.M.WNums % uint64(insert.conf.BatchPerCommit)
+		if insert.conf.BatchPerCommit > 1 {
 			if mod == 0 {
 				if err := session.Exec("begin"); err != nil {
 					log.Panicf("insert.error[%v]", err)
@@ -126,8 +132,8 @@ func (insert *Insert) Insert(worker *xworker.Worker, num int, id int) {
 			xaEnd(worker)
 		}
 		// Txn end.
-		if insert.conf.Batch_per_commit > 1 {
-			if mod == uint64(insert.conf.Batch_per_commit-1) {
+		if insert.conf.BatchPerCommit > 1 {
+			if mod == uint64(insert.conf.BatchPerCommit-1) {
 				if err := session.Exec("commit"); err != nil {
 					log.Panicf("insert.error[%v]", err)
 				}

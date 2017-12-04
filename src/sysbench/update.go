@@ -21,6 +21,7 @@ import (
 	"xworker"
 )
 
+// Update tuple.
 type Update struct {
 	stop     bool
 	requests uint64
@@ -29,6 +30,7 @@ type Update struct {
 	lock     sync.WaitGroup
 }
 
+// NewUpdate creates the new update handler.
 func NewUpdate(conf *xcommon.Conf, workers []xworker.Worker) xworker.Handler {
 	return &Update{
 		conf:    conf,
@@ -36,6 +38,7 @@ func NewUpdate(conf *xcommon.Conf, workers []xworker.Worker) xworker.Handler {
 	}
 }
 
+// Run used to start the worker.
 func (update *Update) Run() {
 	threads := len(update.workers)
 	for i := 0; i < threads; i++ {
@@ -44,15 +47,18 @@ func (update *Update) Run() {
 	}
 }
 
+// Stop used to stop the worker.
 func (update *Update) Stop() {
 	update.stop = true
 	update.lock.Wait()
 }
 
+// Rows returns the row numbers.
 func (update *Update) Rows() uint64 {
 	return atomic.LoadUint64(&update.requests)
 }
 
+// Update used to execute the update query.
 func (update *Update) Update(worker *xworker.Worker, num int, id int) {
 	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)
@@ -75,8 +81,8 @@ func (update *Update) Update(worker *xworker.Worker, num int, id int) {
 
 		t := time.Now()
 		// Txn start.
-		mod := worker.M.WNums % uint64(update.conf.Batch_per_commit)
-		if update.conf.Batch_per_commit > 1 {
+		mod := worker.M.WNums % uint64(update.conf.BatchPerCommit)
+		if update.conf.BatchPerCommit > 1 {
 			if mod == 0 {
 				if err := session.Exec("begin"); err != nil {
 					log.Panicf("update.error[%v]", err)
@@ -95,8 +101,8 @@ func (update *Update) Update(worker *xworker.Worker, num int, id int) {
 			xaEnd(worker)
 		}
 		// Txn end.
-		if update.conf.Batch_per_commit > 1 {
-			if mod == uint64(update.conf.Batch_per_commit-1) {
+		if update.conf.BatchPerCommit > 1 {
+			if mod == uint64(update.conf.BatchPerCommit-1) {
 				if err := session.Exec("commit"); err != nil {
 					log.Panicf("update.error[%v]", err)
 				}

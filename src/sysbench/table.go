@@ -15,14 +15,17 @@ import (
 	"xworker"
 )
 
+// Table tuple.
 type Table struct {
 	workers []xworker.Worker
 }
 
+// NewTable creates the new table.
 func NewTable(workers []xworker.Worker) *Table {
 	return &Table{workers}
 }
 
+// Prepare used to prepare the tables.
 func (t *Table) Prepare() {
 	session := t.workers[0].S
 	count := t.workers[0].N
@@ -44,6 +47,7 @@ func (t *Table) Prepare() {
 	}
 }
 
+// Cleanup used to cleanup the tables.
 func (t *Table) Cleanup() {
 	session := t.workers[0].S
 	count := t.workers[0].N

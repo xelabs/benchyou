@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewSeqCommand creates the new cmd.
 func NewSeqCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "seq",

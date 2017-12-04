@@ -39,7 +39,7 @@ func TestSysbenchBatchUpdate(t *testing.T) {
 	defer cleanup()
 
 	conf := xcommon.MockConf(mysql.Addr())
-	conf.Batch_per_commit = 10
+	conf.BatchPerCommit = 10
 
 	workers := xworker.CreateWorkers(conf, 2)
 	assert.NotNil(t, workers)

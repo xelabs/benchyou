@@ -20,6 +20,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// VMStat tuple.
 type VMStat struct {
 	SystemCS uint64
 	IdleCPU  uint64
@@ -29,6 +30,7 @@ type VMStat struct {
 	SwapSo   uint64
 }
 
+// VMS tuple.
 type VMS struct {
 	cmd    string
 	Stat   *VMStat
@@ -37,12 +39,13 @@ type VMS struct {
 	client *ssh.Client
 }
 
+// NewVMS creates the new VMS.
 func NewVMS(conf *xcommon.Conf) *VMS {
 	client, err := sshConnect(
-		conf.Ssh_user,
-		conf.Ssh_password,
-		conf.Ssh_host,
-		conf.Ssh_port)
+		conf.SSHUser,
+		conf.SSHPassword,
+		conf.SSHHost,
+		conf.SSHPort)
 	if err != nil {
 		fmt.Printf("WARNING: ssh error: %+v\n", err)
 	}
@@ -114,6 +117,7 @@ func (v *VMS) fetch() error {
 	return v.parse(string(outs))
 }
 
+// Start used to start the vms.
 func (v *VMS) Start() {
 	go func() {
 		for _ = range v.t.C {
@@ -124,6 +128,7 @@ func (v *VMS) Start() {
 	}()
 }
 
+// Stop used to stop the vms.
 func (v *VMS) Stop() {
 	v.t.Stop()
 	v.client.Close()

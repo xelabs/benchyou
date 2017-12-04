@@ -9,6 +9,7 @@
 
 package xworker
 
+// Handler interface.
 type Handler interface {
 	Run()
 	Stop()

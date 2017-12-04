@@ -17,6 +17,7 @@ import (
 	"github.com/XeLabs/go-mysqlstack/driver"
 )
 
+// Metric tuple.
 type Metric struct {
 	WNums  uint64
 	WCosts uint64
@@ -28,6 +29,7 @@ type Metric struct {
 	QMin   uint64
 }
 
+// Worker tuple.
 type Worker struct {
 	// session
 	S driver.Conn
@@ -45,6 +47,7 @@ type Worker struct {
 	N int
 }
 
+// CreateWorkers creates the new workers.
 func CreateWorkers(conf *xcommon.Conf, threads int) []Worker {
 	var workers []Worker
 	var conn driver.Conn
@@ -52,30 +55,31 @@ func CreateWorkers(conf *xcommon.Conf, threads int) []Worker {
 
 	// Check database is exists or not.
 	utf8 := "utf8"
-	dsn := fmt.Sprintf("%s:%d", conf.Mysql_host, conf.Mysql_port)
-	if conn, err = driver.NewConn(conf.Mysql_user, conf.Mysql_password, dsn, "", utf8); err != nil {
+	dsn := fmt.Sprintf("%s:%d", conf.MysqlHost, conf.MysqlPort)
+	if conn, err = driver.NewConn(conf.MysqlUser, conf.MysqlPassword, dsn, "", utf8); err != nil {
 		log.Panicf("create.worker.check.database.error:%+v", err)
 	}
-	sql := fmt.Sprintf("create database if not exists `%s`", conf.Mysql_db)
+	sql := fmt.Sprintf("create database if not exists `%s`", conf.MysqlDb)
 	if err := conn.Exec(sql); err != nil {
 		log.Panicf("create.worker.check.database.exec[%s].error:%+v", sql, err)
 	}
 
 	for i := 0; i < threads; i++ {
-		if conn, err = driver.NewConn(conf.Mysql_user, conf.Mysql_password, dsn, conf.Mysql_db, utf8); err != nil {
+		if conn, err = driver.NewConn(conf.MysqlUser, conf.MysqlPassword, dsn, conf.MysqlDb, utf8); err != nil {
 			log.Panicf("create.worker.error:%v", err)
 		}
 		workers = append(workers, Worker{
 			S: conn,
 			M: &Metric{},
-			E: conf.Mysql_table_engine,
-			N: conf.Oltp_tables_count,
+			E: conf.MysqlTableEngine,
+			N: conf.OltpTablesCount,
 		},
 		)
 	}
 	return workers
 }
 
+// AllWorkersMetric returns all the worker's metric.
 func AllWorkersMetric(workers []Worker) *Metric {
 	all := &Metric{}
 	for _, worker := range workers {
@@ -105,6 +109,7 @@ func AllWorkersMetric(workers []Worker) *Metric {
 	return all
 }
 
+// StopWorkers used to stop all the worker.
 func StopWorkers(workers []Worker) {
 	for _, worker := range workers {
 		worker.S.Close()

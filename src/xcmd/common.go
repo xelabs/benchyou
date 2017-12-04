@@ -20,86 +20,86 @@ import (
 func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 	conf = &xcommon.Conf{}
 
-	if conf.Write_threads, err = cmd.Flags().GetInt("write-threads"); err != nil {
+	if conf.WriteThreads, err = cmd.Flags().GetInt("write-threads"); err != nil {
 		return
 	}
 
-	if conf.Update_threads, err = cmd.Flags().GetInt("update-threads"); err != nil {
+	if conf.UpdateThreads, err = cmd.Flags().GetInt("update-threads"); err != nil {
 		return
 	}
 
-	if conf.Delete_threads, err = cmd.Flags().GetInt("delete-threads"); err != nil {
+	if conf.DeleteThreads, err = cmd.Flags().GetInt("delete-threads"); err != nil {
 		return
 	}
 
-	if conf.Read_threads, err = cmd.Flags().GetInt("read-threads"); err != nil {
+	if conf.ReadThreads, err = cmd.Flags().GetInt("read-threads"); err != nil {
 		return
 	}
 
-	if conf.Mysql_host, err = cmd.Flags().GetString("mysql-host"); err != nil {
+	if conf.MysqlHost, err = cmd.Flags().GetString("mysql-host"); err != nil {
 		return
 	}
 
-	if conf.Ssh_host, err = cmd.Flags().GetString("ssh-host"); err != nil {
+	if conf.SSHHost, err = cmd.Flags().GetString("ssh-host"); err != nil {
 		return
 	}
-	if conf.Ssh_host == "" {
-		conf.Ssh_host = conf.Mysql_host
+	if conf.SSHHost == "" {
+		conf.SSHHost = conf.MysqlHost
 	}
 
-	if conf.Ssh_user, err = cmd.Flags().GetString("ssh-user"); err != nil {
-		return
-	}
-
-	if conf.Ssh_password, err = cmd.Flags().GetString("ssh-password"); err != nil {
+	if conf.SSHUser, err = cmd.Flags().GetString("ssh-user"); err != nil {
 		return
 	}
 
-	if conf.Ssh_port, err = cmd.Flags().GetInt("ssh-port"); err != nil {
+	if conf.SSHPassword, err = cmd.Flags().GetString("ssh-password"); err != nil {
 		return
 	}
 
-	if conf.Mysql_user, err = cmd.Flags().GetString("mysql-user"); err != nil {
+	if conf.SSHPort, err = cmd.Flags().GetInt("ssh-port"); err != nil {
 		return
 	}
 
-	if conf.Mysql_password, err = cmd.Flags().GetString("mysql-password"); err != nil {
+	if conf.MysqlUser, err = cmd.Flags().GetString("mysql-user"); err != nil {
 		return
 	}
 
-	if conf.Mysql_port, err = cmd.Flags().GetInt("mysql-port"); err != nil {
+	if conf.MysqlPassword, err = cmd.Flags().GetString("mysql-password"); err != nil {
 		return
 	}
 
-	if conf.Mysql_db, err = cmd.Flags().GetString("mysql-db"); err != nil {
+	if conf.MysqlPort, err = cmd.Flags().GetInt("mysql-port"); err != nil {
 		return
 	}
 
-	if conf.Mysql_table_engine, err = cmd.Flags().GetString("mysql-table-engine"); err != nil {
+	if conf.MysqlDb, err = cmd.Flags().GetString("mysql-db"); err != nil {
 		return
 	}
 
-	if conf.Oltp_tables_count, err = cmd.Flags().GetInt("oltp-tables-count"); err != nil {
+	if conf.MysqlTableEngine, err = cmd.Flags().GetString("mysql-table-engine"); err != nil {
 		return
 	}
 
-	if conf.Rows_per_insert, err = cmd.Flags().GetInt("rows-per-insert"); err != nil {
+	if conf.OltpTablesCount, err = cmd.Flags().GetInt("oltp-tables-count"); err != nil {
 		return
 	}
 
-	if conf.Batch_per_commit, err = cmd.Flags().GetInt("batch-per-commit"); err != nil {
+	if conf.RowsPerInsert, err = cmd.Flags().GetInt("rows-per-insert"); err != nil {
 		return
 	}
 
-	if conf.Max_time, err = cmd.Flags().GetInt("max-time"); err != nil {
+	if conf.BatchPerCommit, err = cmd.Flags().GetInt("batch-per-commit"); err != nil {
 		return
 	}
 
-	if conf.Max_request, err = cmd.Flags().GetUint64("max-request"); err != nil {
+	if conf.MaxTime, err = cmd.Flags().GetInt("max-time"); err != nil {
 		return
 	}
 
-	if conf.Mysql_range_order, err = cmd.Flags().GetString("mysql-range-order"); err != nil {
+	if conf.MaxRequest, err = cmd.Flags().GetUint64("max-request"); err != nil {
+		return
+	}
+
+	if conf.MysqlRangeOrder, err = cmd.Flags().GetString("mysql-range-order"); err != nil {
 		return
 	}
 
@@ -116,10 +116,10 @@ func parseConf(cmd *cobra.Command) (conf *xcommon.Conf, err error) {
 func start(conf *xcommon.Conf) {
 	// worker
 	var workers []xworker.Worker
-	wthds := conf.Write_threads
-	rthds := conf.Read_threads
-	uthds := conf.Update_threads
-	dthds := conf.Delete_threads
+	wthds := conf.WriteThreads
+	rthds := conf.ReadThreads
+	uthds := conf.UpdateThreads
+	dthds := conf.DeleteThreads
 
 	// workers
 	iworkers := xworker.CreateWorkers(conf, wthds)
@@ -161,10 +161,10 @@ func start(conf *xcommon.Conf) {
 				done <- true
 			}
 		}
-	}(insert, query, update, delete, conf.Max_request)
+	}(insert, query, update, delete, conf.MaxRequest)
 
 	select {
-	case <-time.After(time.Duration(conf.Max_time) * time.Second):
+	case <-time.After(time.Duration(conf.MaxTime) * time.Second):
 	case <-done:
 	}
 

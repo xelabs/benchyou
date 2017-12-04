@@ -15,6 +15,7 @@ import (
 	"xworker"
 )
 
+// NewPrepareCommand creates the new cmd.
 func NewPrepareCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "prepare",
@@ -36,6 +37,7 @@ func prepareCommandFn(cmd *cobra.Command, args []string) {
 	table.Prepare()
 }
 
+// NewCleanupCommand creates the new cmd.
 func NewCleanupCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "cleanup",

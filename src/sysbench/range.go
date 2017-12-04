@@ -21,6 +21,7 @@ import (
 	"xworker"
 )
 
+// Range tuple.
 type Range struct {
 	stop     bool
 	requests uint64
@@ -29,6 +30,7 @@ type Range struct {
 	lock     sync.WaitGroup
 }
 
+// NewRange creates the new range handler.
 func NewRange(conf *xcommon.Conf, workers []xworker.Worker, order string) *Range {
 	return &Range{
 		workers: workers,
@@ -36,6 +38,7 @@ func NewRange(conf *xcommon.Conf, workers []xworker.Worker, order string) *Range
 	}
 }
 
+// Run used to start the worker.
 func (r *Range) Run() {
 	threads := len(r.workers)
 	for i := 0; i < threads; i++ {
@@ -44,15 +47,18 @@ func (r *Range) Run() {
 	}
 }
 
+// Stop used to stop the worker.
 func (r *Range) Stop() {
 	r.stop = true
 	r.lock.Wait()
 }
 
+// Rows returns the row numbers.
 func (r *Range) Rows() uint64 {
 	return atomic.LoadUint64(&r.requests)
 }
 
+// Query used to execute the range query.
 func (r *Range) Query(worker *xworker.Worker, num int, id int) {
 	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)

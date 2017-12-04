@@ -20,6 +20,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// IOStat tuple.
 type IOStat struct {
 	RRQM_S float64
 	WRQM_S float64
@@ -31,6 +32,7 @@ type IOStat struct {
 	UTIL   float64
 }
 
+// IOS tuple.
 type IOS struct {
 	cmd    string
 	Stat   *IOStat
@@ -39,12 +41,13 @@ type IOS struct {
 	client *ssh.Client
 }
 
+// NewIOS creates new IOS.
 func NewIOS(conf *xcommon.Conf) *IOS {
 	client, err := sshConnect(
-		conf.Ssh_user,
-		conf.Ssh_password,
-		conf.Ssh_host,
-		conf.Ssh_port)
+		conf.SSHUser,
+		conf.SSHPassword,
+		conf.SSHHost,
+		conf.SSHPort)
 	if err != nil {
 		fmt.Printf("WARNING: ssh error: %+v\n", err)
 	}
@@ -122,7 +125,6 @@ func (v *IOS) parse(outs string) (err error) {
 		return
 	}
 	v.All.UTIL += v.Stat.UTIL
-
 	return
 }
 
@@ -140,10 +142,10 @@ func (v *IOS) fetch() error {
 	if err != nil {
 		return err
 	}
-
 	return v.parse(string(outs))
 }
 
+// Start used to start the ios.
 func (v *IOS) Start() {
 	go func() {
 		for _ = range v.t.C {
@@ -154,6 +156,7 @@ func (v *IOS) Start() {
 	}()
 }
 
+// Stop used to stop the ios.
 func (v *IOS) Stop() {
 	v.t.Stop()
 	v.client.Close()

@@ -19,6 +19,7 @@ import (
 	"xworker"
 )
 
+// Stats tuple.
 type Stats struct {
 	SystemCS uint64
 	IdleCPU  uint64
@@ -36,6 +37,7 @@ type Stats struct {
 	UTIL     float64
 }
 
+// Monitor tuple.
 type Monitor struct {
 	conf    *xcommon.Conf
 	workers []xworker.Worker
@@ -47,6 +49,7 @@ type Monitor struct {
 	seconds uint64
 }
 
+// NewMonitor creates the new monitor.
 func NewMonitor(conf *xcommon.Conf, workers []xworker.Worker) *Monitor {
 	return &Monitor{
 		conf:    conf,
@@ -59,6 +62,7 @@ func NewMonitor(conf *xcommon.Conf, workers []xworker.Worker) *Monitor {
 	}
 }
 
+// Start used to start the monitor.
 func (m *Monitor) Start() {
 	w := tabwriter.NewWriter(os.Stdout, 4, 4, 2, ' ', 0)
 	m.vms.Start()
@@ -104,10 +108,10 @@ func (m *Monitor) Start() {
 			fmt.Fprintln(w, "time   \t\t   thds  \t tps   \twtps  \trtps  \trio  \trio/op \twio  \twio/op  \trMB   \trKB/op  \twMB   \twKB/op \tcpu/op\tfreeMB\tcacheMB\t w-rsp(ms)\tr-rsp(ms)\t  total-number")
 			line := fmt.Sprintf("[%ds]\t\t[r:%d,w:%d,u:%d,d:%d]\t%d\t%d\t%d\t%d\t%.2f\t%d\t%0.2f\t%2.2f\t%.2f\t%2.2f\t%.2f\t%.2f\t%d\t%d\t %.2f\t%.2f\t  %v\n",
 				m.seconds,
-				m.conf.Read_threads,
-				m.conf.Write_threads,
-				m.conf.Update_threads,
-				m.conf.Delete_threads,
+				m.conf.ReadThreads,
+				m.conf.WriteThreads,
+				m.conf.UpdateThreads,
+				m.conf.DeleteThreads,
 				int(tps),
 				int(wtps),
 				int(rtps),
@@ -134,6 +138,7 @@ func (m *Monitor) Start() {
 	}()
 }
 
+// Stop used to stop the monitor.
 func (m *Monitor) Stop() {
 	m.ticker.Stop()
 	xworker.StopWorkers(m.workers)

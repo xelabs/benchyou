@@ -9,27 +9,28 @@
 
 package xcommon
 
+// Conf tuple.
 type Conf struct {
-	Write_threads      int
-	Read_threads       int
-	Delete_threads     int
-	Update_threads     int
-	Ssh_host           string
-	Ssh_user           string
-	Ssh_password       string
-	Ssh_port           int
-	Mysql_host         string
-	Mysql_user         string
-	Mysql_password     string
-	Mysql_port         int
-	Mysql_db           string
-	Mysql_table_engine string
-	Mysql_range_order  string
-	Rows_per_insert    int
-	Batch_per_commit   int
-	Max_time           int
-	Max_request        uint64
-	Oltp_tables_count  int
-	XA                 bool
-	Random             bool
+	WriteThreads     int
+	ReadThreads      int
+	DeleteThreads    int
+	UpdateThreads    int
+	SSHHost          string
+	SSHUser          string
+	SSHPassword      string
+	SSHPort          int
+	MysqlHost       string
+	MysqlUser        string
+	MysqlPassword    string
+	MysqlPort        int
+	MysqlDb          string
+	MysqlTableEngine string
+	MysqlRangeOrder  string
+	RowsPerInsert    int
+	BatchPerCommit   int
+	MaxTime          int
+	MaxRequest       uint64
+	OltpTablesCount  int
+	XA               bool
+	Random           bool
 }

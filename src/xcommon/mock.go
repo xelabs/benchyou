@@ -9,21 +9,23 @@ import (
 	"github.com/XeLabs/go-mysqlstack/xlog"
 )
 
+// MockConf mocks conf.
 func MockConf(addr string) *Conf {
 	host, sport, _ := net.SplitHostPort(addr)
 	port, _ := strconv.Atoi(sport)
 
 	return &Conf{
-		Mysql_host:        host,
-		Mysql_port:        port,
-		Mysql_user:        "mock",
-		Max_request:       16,
-		Oltp_tables_count: 1,
-		Rows_per_insert:   1,
-		Batch_per_commit:  1,
+		MysqlHost:       host,
+		MysqlPort:       port,
+		MysqlUser:       "mock",
+		MaxRequest:      16,
+		OltpTablesCount: 1,
+		RowsPerInsert:   1,
+		BatchPerCommit:  1,
 	}
 }
 
+// MockMySQL mocks mysql.
 func MockMySQL() (*driver.Listener, func()) {
 	result1 := &sqltypes.Result{}
 

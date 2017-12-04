@@ -21,6 +21,7 @@ import (
 	"xworker"
 )
 
+// Delete tuple.
 type Delete struct {
 	stop     bool
 	requests uint64
@@ -29,6 +30,7 @@ type Delete struct {
 	lock     sync.WaitGroup
 }
 
+// NewDelete creates the new handler.
 func NewDelete(conf *xcommon.Conf, workers []xworker.Worker) xworker.Handler {
 	return &Delete{
 		conf:    conf,
@@ -36,6 +38,7 @@ func NewDelete(conf *xcommon.Conf, workers []xworker.Worker) xworker.Handler {
 	}
 }
 
+// Run used to start the worker.
 func (delete *Delete) Run() {
 	threads := len(delete.workers)
 	for i := 0; i < threads; i++ {
@@ -44,15 +47,18 @@ func (delete *Delete) Run() {
 	}
 }
 
+// Stop used to stop the worker.
 func (delete *Delete) Stop() {
 	delete.stop = true
 	delete.lock.Wait()
 }
 
+// Rows returns the row numbers.
 func (delete *Delete) Rows() uint64 {
 	return atomic.LoadUint64(&delete.requests)
 }
 
+// Delete used to execute delete query.
 func (delete *Delete) Delete(worker *xworker.Worker, num int, id int) {
 	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)
@@ -74,8 +80,8 @@ func (delete *Delete) Delete(worker *xworker.Worker, num int, id int) {
 
 		t := time.Now()
 		// Txn start.
-		mod := worker.M.WNums % uint64(delete.conf.Batch_per_commit)
-		if delete.conf.Batch_per_commit > 1 {
+		mod := worker.M.WNums % uint64(delete.conf.BatchPerCommit)
+		if delete.conf.BatchPerCommit > 1 {
 			if mod == 0 {
 				if err := session.Exec("begin"); err != nil {
 					log.Panicf("delete.error[%v]", err)
@@ -94,8 +100,8 @@ func (delete *Delete) Delete(worker *xworker.Worker, num int, id int) {
 			xaEnd(worker)
 		}
 		// Txn end.
-		if delete.conf.Batch_per_commit > 1 {
-			if mod == uint64(delete.conf.Batch_per_commit-1) {
+		if delete.conf.BatchPerCommit > 1 {
+			if mod == uint64(delete.conf.BatchPerCommit-1) {
 				if err := session.Exec("commit"); err != nil {
 					log.Panicf("delete.error[%v]", err)
 				}

@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewRandomCommand creates the new cmd.
 func NewRandomCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "random",
