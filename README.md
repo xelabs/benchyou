@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/XeLabs/benchyou.svg?branch=master)](https://travis-ci.org/XeLabs/benchyou) [![Go Report Card](https://goreportcard.com/badge/github.com/XeLabs/benchyou)](https://goreportcard.com/report/github.com/XeLabs/benchyou)  [![codecov.io](https://codecov.io/gh/XeLabs/benchyou/graphs/badge.svg)](https://codecov.io/gh/XeLabs/benchyou/branch/master)
+[![Build Status](https://travis-ci.org/xelabs/benchyou.svg?branch=master)](https://travis-ci.org/xelabs/benchyou) [![Go Report Card](https://goreportcard.com/badge/github.com/xelabs/benchyou)](https://goreportcard.com/report/github.com/xelabs/benchyou)  [![codecov.io](https://codecov.io/gh/xelabs/benchyou/graphs/badge.svg)](https://codecov.io/gh/xelabs/benchyou/branch/master)
 
-## About
+## benchyou
 
 benchyou is a benchmark tool for MySQL, similar Sysbench.
 
@@ -71,7 +71,7 @@ total-number: the total number events
 ## Build
 
 ```
-$git clone https://github.com/XeLabs/benchyou
+$git clone https://github.com/xelabs/benchyou
 $cd benchyou
 $make build
 $./bin/benchyou -h
@@ -142,3 +142,7 @@ batch update(10 rows per transaction):
 query-range(Write/Read Ratio=128:8):
  ./bin/benchyou  --mysql-host=192.168.0.3 --mysql-user=benchyou --mysql-password=benchyou --ssh-user=benchyou --ssh-password=benchyou --oltp-tables-count=64 --write-threads=128 --read-threads=8 --max-time=3600 --mysql-range-order=DESC range
 ```
+
+## License
+
+benchyou is released under the GPLv3. See LICENSE

@@ -13,7 +13,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/XeLabs/go-mysqlstack/common"
+	"github.com/xelabs/go-mysqlstack/common"
 )
 
 func init() {

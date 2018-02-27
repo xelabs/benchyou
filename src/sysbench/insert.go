@@ -20,7 +20,7 @@ import (
 	"xcommon"
 	"xworker"
 
-	"github.com/XeLabs/go-mysqlstack/common"
+	"github.com/xelabs/go-mysqlstack/common"
 )
 
 // Insert tuple.
