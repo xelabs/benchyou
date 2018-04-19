@@ -61,7 +61,6 @@ func (q *Query) Rows() uint64 {
 // Query used to execute the query.
 func (q *Query) Query(worker *xworker.Worker, num int, id int) {
 	var rid int64
-	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)
 	lo := bs * int64(id)
 	hi := bs * int64(id+1)
@@ -77,7 +76,7 @@ func (q *Query) Query(worker *xworker.Worker, num int, id int) {
 		table := rand.Int31n(int32(worker.N))
 		sql := fmt.Sprintf("SELECT * FROM benchyou%d WHERE id=%v", table, rid)
 		t := time.Now()
-		if err := session.Exec(sql); err != nil {
+		if err := worker.Execute(sql); err != nil {
 			log.Panicf("query.error[%v]", err)
 		}
 		elapsed := time.Since(t)

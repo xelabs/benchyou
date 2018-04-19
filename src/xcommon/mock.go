@@ -1,6 +1,7 @@
 package xcommon
 
 import (
+	"errors"
 	"net"
 	"strconv"
 
@@ -48,6 +49,7 @@ func MockMySQL() (*driver.Listener, func()) {
 	th.AddQueryPattern("xa .*", result1)
 	th.AddQueryPattern("begin", result1)
 	th.AddQueryPattern("commit", result1)
+	th.AddQueryError("error me", errors.New("error.me"))
 
 	return svr, func() {
 		svr.Close()

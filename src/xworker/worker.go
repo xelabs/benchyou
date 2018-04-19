@@ -12,6 +12,7 @@ package xworker
 import (
 	"fmt"
 	"log"
+	"time"
 	"xcommon"
 
 	"github.com/xelabs/go-mysqlstack/driver"
@@ -31,9 +32,6 @@ type Metric struct {
 
 // Worker tuple.
 type Worker struct {
-	// session
-	S driver.Conn
-
 	// mertric
 	M *Metric
 
@@ -45,6 +43,31 @@ type Worker struct {
 
 	// table number
 	N int
+
+	s    driver.Conn
+	conf *xcommon.Conf
+}
+
+func (w *Worker) Execute(sql string) error {
+	conf := w.conf
+	err := w.s.Exec(sql)
+	if err != nil {
+		for {
+			if w.s != nil {
+				w.s.Close()
+			}
+			utf8 := "utf8"
+			dsn := fmt.Sprintf("%s:%d", conf.MysqlHost, conf.MysqlPort)
+			w.s, err = driver.NewConn(conf.MysqlUser, conf.MysqlPassword, dsn, "", utf8)
+			if err != nil {
+				log.Printf("worker[%v].error:%+v\n", w.N, err)
+				time.Sleep(time.Second * 2)
+			} else {
+				break
+			}
+		}
+	}
+	return err
 }
 
 // CreateWorkers creates the new workers.
@@ -69,10 +92,11 @@ func CreateWorkers(conf *xcommon.Conf, threads int) []Worker {
 			log.Panicf("create.worker.error:%v", err)
 		}
 		workers = append(workers, Worker{
-			S: conn,
-			M: &Metric{},
-			E: conf.MysqlTableEngine,
-			N: conf.OltpTablesCount,
+			s:    conn,
+			M:    &Metric{},
+			E:    conf.MysqlTableEngine,
+			N:    conf.OltpTablesCount,
+			conf: conf,
 		},
 		)
 	}
@@ -112,6 +136,6 @@ func AllWorkersMetric(workers []Worker) *Metric {
 // StopWorkers used to stop all the worker.
 func StopWorkers(workers []Worker) {
 	for _, worker := range workers {
-		worker.S.Close()
+		worker.s.Close()
 	}
 }

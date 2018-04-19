@@ -60,7 +60,6 @@ func (update *Update) Rows() uint64 {
 
 // Update used to execute the update query.
 func (update *Update) Update(worker *xworker.Worker, num int, id int) {
-	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)
 	lo := bs * int64(id)
 	hi := bs * int64(id+1)
@@ -84,7 +83,7 @@ func (update *Update) Update(worker *xworker.Worker, num int, id int) {
 		mod := worker.M.WNums % uint64(update.conf.BatchPerCommit)
 		if update.conf.BatchPerCommit > 1 {
 			if mod == 0 {
-				if err := session.Exec("begin"); err != nil {
+				if err := worker.Execute("begin"); err != nil {
 					log.Panicf("update.error[%v]", err)
 				}
 			}
@@ -93,7 +92,7 @@ func (update *Update) Update(worker *xworker.Worker, num int, id int) {
 		if update.conf.XA {
 			xaStart(worker, hi, lo)
 		}
-		if err := session.Exec(sql); err != nil {
+		if err := worker.Execute(sql); err != nil {
 			log.Panicf("update.error[%v]", err)
 		}
 		// XA end.
@@ -103,7 +102,7 @@ func (update *Update) Update(worker *xworker.Worker, num int, id int) {
 		// Txn end.
 		if update.conf.BatchPerCommit > 1 {
 			if mod == uint64(update.conf.BatchPerCommit-1) {
-				if err := session.Exec("commit"); err != nil {
+				if err := worker.Execute("commit"); err != nil {
 					log.Panicf("update.error[%v]", err)
 				}
 			}

@@ -35,3 +35,17 @@ func TestXWorker(t *testing.T) {
 	assert.NotNil(t, metric)
 	StopWorkers(workers)
 }
+
+func TestXWorkerExecute(t *testing.T) {
+	mysql, cleanup := xcommon.MockMySQL()
+	defer cleanup()
+
+	conf := xcommon.MockConf(mysql.Addr())
+
+	workers := CreateWorkers(conf, 2)
+	assert.NotNil(t, workers)
+	w0 := workers[0]
+	w0.Execute("error me")
+
+	StopWorkers(workers)
+}

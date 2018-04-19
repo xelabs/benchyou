@@ -33,4 +33,5 @@ type Conf struct {
 	OltpTablesCount  int
 	XA               bool
 	Random           bool
+	Reconnect        bool
 }

@@ -60,7 +60,6 @@ func (r *Range) Rows() uint64 {
 
 // Query used to execute the range query.
 func (r *Range) Query(worker *xworker.Worker, num int, id int) {
-	session := worker.S
 	bs := int64(math.MaxInt64) / int64(num)
 	lo := bs * int64(id)
 	hi := bs * int64(id+1)
@@ -73,7 +72,7 @@ func (r *Range) Query(worker *xworker.Worker, num int, id int) {
 		sql := fmt.Sprintf("SELECT * FROM benchyou%d WHERE id BETWEEN %d AND %d ORDER BY id %v LIMIT 100",
 			table, lower, upper, r.order)
 		t := time.Now()
-		if err := session.Exec(sql); err != nil {
+		if err := worker.Execute(sql); err != nil {
 			log.Panicf("range.error[%v]", err)
 		}
 		elapsed := time.Since(t)
