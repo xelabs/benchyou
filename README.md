@@ -104,7 +104,7 @@ Flags:
       --mysql-password string       MySQL password(Default benchyou) (default "benchyou")
       --mysql-port int              MySQL server port(Default 3306) (default 3306)
       --mysql-range-order string    range query sort the result-set in {ASC|DESC} (Default ASC) (default "ASC")
-      --mysql-table-engine string   storage engine to use for the test table {tokudb,innodb,...}(Default tokudb) (default "tokudb")
+      --mysql-table-engine string   storage engine to use for the test table {tokudb,innodb,...}(Default innodb) (default "innodb")
       --mysql-user string           MySQL user(Default benchyou) (default "benchyou")
       --oltp-tables-count int       number of tables to create(Default 8) (default 8)
       --rows-per-insert int         #rows per insert(Default 1) (default 1)
