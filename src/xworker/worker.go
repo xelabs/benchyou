@@ -53,17 +53,8 @@ func CreateWorkers(conf *xcommon.Conf, threads int) []Worker {
 	var conn driver.Conn
 	var err error
 
-	// Check database is exists or not.
 	utf8 := "utf8"
 	dsn := fmt.Sprintf("%s:%d", conf.MysqlHost, conf.MysqlPort)
-	if conn, err = driver.NewConn(conf.MysqlUser, conf.MysqlPassword, dsn, "", utf8); err != nil {
-		log.Panicf("create.worker.check.database.error:%+v", err)
-	}
-	sql := fmt.Sprintf("create database if not exists `%s`", conf.MysqlDb)
-	if err := conn.Exec(sql); err != nil {
-		log.Panicf("create.worker.check.database.exec[%s].error:%+v", sql, err)
-	}
-
 	for i := 0; i < threads; i++ {
 		if conn, err = driver.NewConn(conf.MysqlUser, conf.MysqlPassword, dsn, conf.MysqlDb, utf8); err != nil {
 			log.Panicf("create.worker.error:%v", err)
