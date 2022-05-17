@@ -73,7 +73,7 @@ total-number: the total number events
 ```
 $git clone https://github.com/xelabs/benchyou
 $cd benchyou
-$make build
+$go build .
 $./bin/benchyou -h
 ```
 
